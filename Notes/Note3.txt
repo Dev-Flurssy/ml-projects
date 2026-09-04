@@ -1,0 +1,244 @@
+CLASSIFICATION AND LINEAR MODELS
+
+A linear model makes predictions by adding the input features, each multiplied by a learned weight:
+
+y = w0x0 + w1x1 + ... + wpxp + b  
+w = learned weight  
+x = input  
+b = bias (intercept)
+
+Weights measure how important each feature is:  
+Positive weight → feature increases prediction  
+Negative weight → feature decreases prediction  
+Zero weight → feature does not matter
+
+------------------------------------------------------------
+LINEAR REGRESSION VS LINEAR CLASSIFICATION
+
+Linear Regression  
+Predicts a continuous number using a straight-line relationship between features and target.  
+1 feature → line  
+2 features → plane  
+3+ features → hyperplane  
+Produces straight, flat shapes (no curves).
+
+KNeighborsRegressor → flexible wiggly curve  
+Linear Regression → straight line
+
+The more features you have, the more powerful linear regression becomes because the model moves from line → plane → hyperplane.  
+If you have more features than training samples, a linear model can fit the training data perfectly.
+
+All linear regression models use the same formula but differ in how they learn weights and control complexity.
+
+------------------------------------------------------------
+ORDINARY LEAST SQUARES (OLS)
+
+OLS chooses weights and bias that minimize the squared error.  
+It has no complexity control, so it can overfit when features are many or noisy.
+
+------------------------------------------------------------
+RIDGE, LASSO, ELASTIC NET
+
+Ridge Regression  
+Adds L2 regularization to prevent weights from becoming too large.  
+Small weights → simpler model → less overfitting.  
+Useful for noisy data and correlated features.
+
+Lasso Regression  
+Adds L1 regularization.  
+Can force some weights to become zero → automatic feature selection.  
+Useful when only a few features matter.
+
+Elastic Net  
+Combination of L1 and L2 regularization.  
+Useful when features are correlated and you want both stability and feature selection.
+
+Regularization means adding a rule that prevents the model from becoming too complex.
+
+------------------------------------------------------------
+LINEAR CLASSIFIERS
+
+A linear classifier tries to separate classes using a straight line (2D), a plane (3D), or a hyperplane (higher dimensions):
+
+score = w0x0 + w1x1 + ... + wpxp  
+If score > 0 → class +1  
+If score < 0 → class -1  
+If score = 0 → decision boundary
+
+Linear Regression vs Linear Classification  
+LR output is a number.  
+LC output is a class.  
+LR fits data with a line/plane.  
+LC separates classes with a line/plane.
+
+------------------------------------------------------------
+LOGISTIC REGRESSION
+
+A linear classifier that uses the logistic (sigmoid) function to convert scores into probabilities:
+
+probability = 1 / (1 + e^-score)
+
+Used for binary classification.  
+Decision boundary is linear.
+
+------------------------------------------------------------
+LINEAR SVM (Support Vector Machine)
+
+Uses hinge loss.  
+Focuses on maximizing the margin, the distance between the boundary and the closest points.  
+Produces sharper, more stable boundaries.
+
+C controls how strict the model is:
+
+High C → weak regularization → complex model → tries to classify every point correctly → sensitive to noise  
+Low C → strong regularization → simpler model → ignores outliers → smoother boundary
+
+Small C → small coefficients → simpler model  
+Large C → large coefficients → complex model
+
+Coefficient sign flips show instability when features are correlated.
+
+------------------------------------------------------------
+MULTI‑CLASS LINEAR MODELS (One‑vs‑Rest)
+
+Most linear models (Linear SVM, Logistic Regression) are binary.  
+To handle multiple classes, use One‑vs‑Rest:
+
+For K classes:  
+Classifier 1: A vs not A  
+Classifier 2: B vs not B  
+Classifier 3: C vs not C  
+…
+
+When a new point arrives, each classifier produces a score.  
+The class with the highest score wins.
+
+------------------------------------------------------------
+REGULARIZATION PARAMETERS
+
+Linear models have one main parameter controlling complexity:
+
+α (alpha) → regression models (Ridge, Lasso)  
+C → classification models (LinearSVC, LogisticRegression)
+
+Typical values: 0.0001, 0.001, 0.01, 0.1, 1, 10, 100
+
+Large α or small C → strong regularization → simpler model  
+Small α or large C → weak regularization → more complex model
+
+Choosing L1 vs L2  
+L1 → feature selection, interpretability  
+L2 → stability, general performance
+
+------------------------------------------------------------
+MERITS AND DEMERITS OF LINEAR MODELS
+
+Merits:  
+Fast to train and predict  
+Works well with sparse data  
+Simple and interpretable (when features are not correlated)
+
+Demerits:  
+Hard to interpret when features are correlated  
+Not great in low-dimensional spaces  
+Struggles when true boundary is curved or complex
+
+------------------------------------------------------------
+NAIVE BAYES CLASSIFIER
+
+Naive Bayes is one of the simplest ML classifiers.  
+It predicts a class by calculating how likely each class is given the features, assuming all features are independent (Naive assumption).
+
+It counts how often each feature appears in each class.  
+For new data, it checks which class is most probable and picks the class with the highest probability.
+
+Types of Naive Bayes in scikit-learn:
+
+GaussianNB  
+For continuous features.  
+Assumes features follow a normal distribution.  
+Stores mean and standard deviation per feature per class.
+
+BernoulliNB  
+For binary (0/1) features.  
+Used in text classification (presence/absence of words).
+
+MultinomialNB  
+For count data (word frequencies).  
+Stores average counts per feature per class.
+
+Merits:  
+Great for text classification (spam, sentiment, topic detection)  
+Works well with very high-dimensional data  
+Extremely fast  
+Good when training data is huge
+
+Demerits:  
+Independence assumption is unrealistic → slightly worse accuracy  
+Not good when features interact strongly  
+GaussianNB struggles if data is not normally distributed
+
+------------------------------------------------------------
+DECISION TREES
+
+A decision tree makes predictions by asking a series of yes/no questions.  
+It keeps splitting the data into purer groups until reaching a final decision.
+
+For continuous features, questions look like:  
+Is feature_i ≤ value?
+
+The tree chooses the split that best separates the classes using impurity measures:
+
+Gini impurity  
+Entropy (information gain)
+
+Decision Trees grow recursively:  
+Pick best question → split data → repeat → stop when data is clean
+
+Each split uses one feature → boundaries are axis‑parallel (vertical or horizontal lines).
+
+A leaf is pure when all points inside belong to the same class.
+
+------------------------------------------------------------
+WHY DECISION TREES OVERFIT
+
+Trees keep splitting until every leaf is pure.  
+This memorizes the training data and performs poorly on new data.  
+Tiny leaves often fit outliers → overfitting.
+
+------------------------------------------------------------
+HOW TO PREVENT OVERFITTING
+
+Pre‑pruning (stop early):  
+max_depth → limit how many questions the tree can ask  
+max_leaf_nodes → limit number of leaves  
+min_samples_split → minimum samples required to split  
+min_samples_leaf → minimum samples per leaf
+
+Post‑pruning (cut back later):  
+Grow the tree fully, then remove branches that don’t improve validation performance.
+
+------------------------------------------------------------
+FEATURE IMPORTANCE
+
+Decision trees compute how much each feature contributed to splitting the data.  
+Importance ranges from 0 to 1.  
+0 → feature never used  
+Higher → feature used more often and made bigger splits  
+All importances add up to 1.
+
+------------------------------------------------------------
+PRUNING SUMMARY
+
+Pruning reduces tree size by removing branches with little predictive power.  
+Makes the model simpler and more generalizable.
+
+------------------------------------------------------------
+MATPLOTLIB LOG SCALES
+
+plt.plot() → both axes linear  
+plt.semilogy() → x linear, y log  
+plt.semilogx() → x log, y linear  
+plt.loglog() → both axes log
+
+------------------------------------------------------------

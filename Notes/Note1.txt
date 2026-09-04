@@ -1,0 +1,191 @@
+INTRODUCTION TO MACHINE LEARNING
+
+Spam filters were one of the earliest practical uses of Machine Learning in the 1990s, helping millions automatically detect unwanted emails.
+
+Machine Learning (ML) is the science of programming computers to learn from data. Instead of giving step‑by‑step instructions, we provide examples, and the system learns patterns from them.
+
+The examples used for learning are the training set.  
+Each example is a training instance (or sample).  
+The part of the system that learns and makes predictions is the model.
+
+Data Mining focuses on discovering hidden patterns and trends in large datasets.  
+Machine Learning focuses on learning patterns that can be used to make predictions.
+
+------------------------------------------------------------
+WHY MACHINE LEARNING MATTERS
+
+ML is useful when:
+- Rule‑based solutions become too complex.
+- The problem is too difficult for manual programming.
+- The environment changes frequently.
+- We need insights from large or complex datasets.
+
+------------------------------------------------------------
+COMMON ML TASKS AND TECHNIQUES
+
+Image classification – CNNs, Transformers  
+Tumor segmentation – CNNs, Transformers  
+Text classification – RNNs, CNNs, Transformers  
+Text summarization – Seq2Seq, Transformers  
+Chatbots – NLU + QA + Transformers  
+Revenue forecasting – Regression, RNNs, CNNs, Transformers  
+Speech recognition – RNNs, CNNs, Transformers  
+Fraud detection – Isolation Forest, GMM, Autoencoders  
+Customer segmentation – k‑means, DBSCAN  
+Data visualization – PCA, t‑SNE  
+Recommendation systems – Neural Nets, Collaborative Filtering  
+Game bots – Reinforcement Learning
+
+------------------------------------------------------------
+CLASSIFICATION OF MACHINE LEARNING
+
+1. Based on Supervision  
+Supervised, Unsupervised, Semi‑Supervised, Self‑Supervised, Reinforcement Learning
+
+2. Based on Learning Style  
+Batch Learning, Online Learning
+
+3. Based on Generalization Strategy  
+Instance‑Based Learning, Model‑Based Learning
+
+------------------------------------------------------------
+SUPERVISED LEARNING
+
+Supervised learning uses labeled data. The model compares its predictions with the true labels, adjusts itself, and improves over time.
+
+Goal: Make accurate predictions on new, unseen data.
+
+Types:
+- Classification
+- Regression
+
+Applications:
+Email spam filtering  
+Credit risk analysis  
+Medical diagnosis  
+Image classification  
+Sentiment analysis  
+Fraud detection
+
+Additional supervised‑learning concepts:
+- Training set: used to teach the model.  
+- Validation set: used to tune hyperparameters.  
+- Test set: used to estimate real‑world performance.  
+- Target variable: the output the model must predict.  
+- Features: the input variables used for prediction.
+
+------------------------------------------------------------
+GENERALIZATION, OVERFITTING, UNDERFITTING
+
+Generalization: The model performs well on new data, not just training data.
+
+Overfitting: The model memorizes the training data instead of learning patterns. Good on training data, bad on new data.
+
+Underfitting: The model is too simple and fails to learn important patterns. Poor performance on both training and new data.
+
+------------------------------------------------------------
+HYPERPARAMETERS
+
+A hyperparameter is something you set before training that controls how the model learns.  
+Hyperparameters are like knobs you turn before training.  
+Turn the knob too far → model becomes too simple.  
+Don’t turn it enough → model may overfit.
+
+Examples of hyperparameters:
+Learning rate  
+Number of neighbors (k in k‑NN)  
+Depth of a decision tree  
+Regularization strength  
+Number of epochs  
+Batch size
+
+------------------------------------------------------------
+GENERALIZATION ERROR AND DATA MISMATCH
+
+The error rate on new cases is called the generalization error (or out‑of‑sample error).  
+Evaluating your model on the test set gives an estimate of this error and shows how well the model will perform on unseen data.
+
+Data mismatch is the difference between training data and real‑life data.  
+Validation and test sets must be representative of real‑world data.
+
+------------------------------------------------------------
+DATA QUALITY CONCEPTS
+
+Sample noise: Training sample is too small or contains unlucky examples.  
+Sample bias: Data collection method is flawed or unrepresentative.  
+Representative training data: The model learns patterns that generalize well.  
+Non‑representative data: The model learns misleading patterns.
+
+------------------------------------------------------------
+REGULARIZATION
+
+Regularization is a process used to make a model simple so it doesn't overfit.
+
+A linear model has two parameters:
+θ₀ (intercept) – shifts the line up or down  
+θ₁ (slope) – tilts the line
+
+Restricting θ₁ makes the model simpler.
+
+------------------------------------------------------------
+UNSUPERVISED LEARNING
+
+Unsupervised learning works without labels. The system discovers patterns and structure on its own.
+
+Types:
+- Clustering
+- Visualization
+- Dimensionality Reduction
+- Anomaly Detection
+- Association Rule Learning
+
+------------------------------------------------------------
+SEMI‑SUPERVISED LEARNING
+
+Uses a small amount of labeled data and a large amount of unlabeled data.
+
+------------------------------------------------------------
+REINFORCEMENT LEARNING
+
+An agent interacts with an environment, performs actions, receives rewards or penalties, and learns a policy that maximizes reward.
+
+------------------------------------------------------------
+BATCH VS ONLINE LEARNING
+
+Batch Learning:
+Learns from all available data at once. Training is expensive and done offline. After deployment, the model does not learn further.
+
+Model rot / data drift:
+Performance decays over time because the world changes but the model does not.
+
+Online Learning:
+Learns incrementally from data arriving sequentially. Fast, cheap updates allow continuous adaptation.
+
+Out‑of‑core training:
+Used when datasets don’t fit in memory. The algorithm loads chunks of data, trains, and repeats.
+
+------------------------------------------------------------
+INSTANCE‑BASED LEARNING
+
+The model memorizes examples and generalizes to new cases by comparing them using a similarity measure.
+
+------------------------------------------------------------
+UTILITY VS COST
+
+Utility function: Measures how good the model is.  
+Cost function: Measures how bad the model is.
+
+------------------------------------------------------------
+PIPELINES
+
+A pipeline is a sequence of steps that process data from raw → cleaned → transformed → model‑ready → prediction‑ready.
+
+Each component:
+- Loads data
+- Processes it
+- Saves output
+- Passes it to the next step
+
+Pipelines are robust because if one component fails, others can still run using the last successful output.
+
+------------------------------------------------------------
