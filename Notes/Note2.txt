@@ -1,0 +1,172 @@
+REGRESSION
+
+Regression is a supervised learning technique used to predict continuous numerical values. It learns the relationship between input features and an output variable. It helps us understand how changes in one factor affect the outcome. Regression is used in forecasting, risk analysis, decision making, and trend estimation.
+
+It teaches the computer to predict a number by learning from examples and producing a continuous value.  
+Example: predicting the price of a house or annual salary of an employee using features like size, type, number of rooms, etc.
+
+Regression is based on predictor variables and the nature of their relationship with the output.
+
+------------------------------------------------------------
+SIMPLE LINEAR REGRESSION
+
+Simple Linear Regression models the relationship between one independent variable (input) and one continuous dependent variable (output). It draws a straight line that best fits the data by minimizing the mean squared error.
+
+It is simple and interpretable but cannot capture complex relationships because it only fits a straight line.  
+Example: predicting a student’s score based on hours studied.
+
+------------------------------------------------------------
+GRADIENT DESCENT
+
+Gradient Descent is an optimization algorithm used to minimize the error of a machine learning model. It updates model parameters step‑by‑step in the direction that reduces the loss.
+
+------------------------------------------------------------
+TYPES OF LINEAR REGRESSION
+
+Univariate Linear Regression  
+Output depends on only one independent input variable. (Same as simple linear regression.)
+
+Multivariate Regression  
+Predicts more than one output at the same time.
+
+Multiple Linear Regression  
+Uses more than one independent variable to predict a single dependent variable.
+
+Polynomial Regression  
+A form of linear regression that fits curved lines by adding polynomial terms.
+
+------------------------------------------------------------
+REGULARIZED LINEAR REGRESSION
+
+Ridge Regression  
+Adds an L2 penalty to limit large coefficients and reduce overfitting. It minimizes error but can become unstable when features are highly correlated.
+
+Lasso Regression  
+Adds an L1 penalty to improve generalization and control overfitting. Lasso can reduce some coefficients to zero, performing automatic feature selection.
+
+Regularization Strength (λ)  
+λ controls how strong the penalty is.  
+Large λ → simpler model  
+Small λ → more flexible model
+
+------------------------------------------------------------
+OTHER REGRESSION MODELS
+
+Support Vector Regression (SVR)  
+Predicts continuous values by fitting a function within a defined error margin. Uses kernel functions to handle both linear and complex relationships.
+
+Decision Tree Regression  
+Predicts continuous values using a tree‑like structure that splits data based on feature conditions.
+
+Random Forest Regression  
+Combines multiple decision trees to produce more accurate and stable predictions.
+
+------------------------------------------------------------
+ASSUMPTIONS OF LINEAR REGRESSION
+
+Linear regression works best when these assumptions hold:
+- Linearity: relationship between input and output is linear  
+- Independence: observations are independent  
+- Homoscedasticity: constant variance of errors  
+- Normality: errors are normally distributed  
+- No multicollinearity: features should not be highly correlated  
+
+These assumptions explain why linear regression sometimes fails.
+
+------------------------------------------------------------
+COST FUNCTION FOR REGRESSION
+
+Regression models commonly minimize Mean Squared Error (MSE), which is the average squared difference between predicted and actual values.
+
+------------------------------------------------------------
+R² SCORE
+
+R² (coefficient of determination) measures how much of the variation in the output is explained by the model.  
+R² = 1 means perfect prediction.  
+R² = 0 means the model predicts no better than the average.
+
+------------------------------------------------------------
+RESIDUALS
+
+Residual = actual value – predicted value.  
+Residual analysis helps detect:
+- non‑linearity  
+- outliers  
+- heteroscedasticity  
+- poor model fit  
+
+------------------------------------------------------------
+FEATURE SCALING
+
+Regression models like gradient descent and SVR often require feature scaling (standardization or normalization) to improve performance and convergence.
+
+------------------------------------------------------------
+OUTLIERS
+
+Outliers can strongly affect regression because the model minimizes squared error.  
+Robust regression methods like Huber or RANSAC can reduce outlier impact.
+
+------------------------------------------------------------
+CORRELATION VS CAUSATION
+
+Regression identifies relationships between variables but does not prove causation.
+
+------------------------------------------------------------
+TRAIN / VALIDATION / TEST SPLIT
+
+Regression models must be evaluated on validation and test sets to measure real‑world performance and tune hyperparameters.
+
+------------------------------------------------------------
+HYPERPARAMETERS
+
+A hyperparameter is something you set before training that controls how the model learns.  
+Hyperparameters are like knobs you turn before training.
+
+Turn the knob too far → the model becomes too simple.  
+Don’t turn it enough → the model may overfit.
+
+Examples of hyperparameters:
+learning rate  
+regularization strength  
+number of epochs  
+batch size  
+tree depth  
+number of neighbors (k in k‑NN)
+
+------------------------------------------------------------
+GENERALIZATION ERROR AND DATA MISMATCH
+
+The error rate on new cases is called the generalization error (or out‑of‑sample error).  
+Evaluating your model on the test set gives an estimate of this error and shows how well the model performs on unseen data.
+
+Data mismatch is the difference between training data and real‑life data.  
+Validation and test sets must be representative of real‑world data.
+
+------------------------------------------------------------
+DATA QUALITY ISSUES
+
+Sample noise  
+Training sample is too small or contains unlucky or unusual examples.
+
+Sample bias  
+Training sample is large but collected in a flawed or unrepresentative way.
+
+Representative training data  
+Model learns patterns that generalize well.
+
+Non‑representative data  
+Model learns misleading patterns.
+
+------------------------------------------------------------
+MODEL COMPLEXITY
+
+Model complexity describes how flexible or powerful a model is.  
+Dataset size is the amount of data used to train the model.
+
+- A complex model with small data will memorize and overfit instead of learning patterns.  
+- A simple model with large data will underfit because it cannot capture all patterns in the rich dataset.
+
+High‑dimensional datasets have many features.  
+Low‑dimensional datasets have few features.
+
+------------------------------------------------------------
