@@ -1,0 +1,247 @@
+SCIKIT‑LEARN DESIGN PRINCIPLES
+
+- Consistency: All objects (models, transformers, imputers, etc.) share the same style of methods. 
+  This means you don’t have to learn a new interface for each algorithm everything follows the same predictable pattern.  
+
+- Estimators: Any object that can learn parameters from data is called an estimator. You train it with `fit(X, y)`.  
+  - `X` = features (input data)  
+  - `y` = labels (only for supervised learning)  
+  Hyperparameters (settings chosen before training, like strategy="median") are set when you create the estimator. 
+  Learned parameters (like the actual median values) are stored after fitting.  
+
+- Transformers: Estimators that can also transform data. They use `transform(X)` to modify the dataset (e.g., filling missing values, scaling features). 
+  Shortcut: `fit_transform(X)` = learn + apply in one step.  
+
+- Predictors: Estimators that can make predictions. They use `predict(X)` to generate outputs and `score(X, y)` to evaluate performance. 
+  Example: LinearRegression predicts house prices given features.  
+
+- Inspection: Hyperparameters are accessible directly (e.g., `imputer.strategy`). 
+  Learned parameters are stored with an underscore suffix (e.g., `imputer.statistics_`). This makes it easy to check what the model has learned.  
+
+- Nonproliferation of classes: Scikit‑Learn avoids creating custom dataset classes. Instead, it uses standard data structures like NumPy arrays, Pandas 
+  DataFrames, or SciPy sparse matrices. This keeps things simple and compatible with other Python libraries.  
+
+- Composition: You can chain multiple steps together using `Pipeline`. For example, you can combine an imputer, a scaler, and a predictor into one workflow. 
+  This makes complex processes reusable and organized.  
+
+- Sensible defaults: Most algorithms work out‑of‑the‑box with reasonable default settings. 
+  You can get a baseline model quickly, then fine‑tune hyperparameters later for optimization.  
+  
+------------------------------------------------------------
+DATA PREPROCESSING TOOLS IN SCIKIT‑LEARN
+
+SimpleImputer  
+- Fills missing values with a chosen strategy (mean, median, most_frequent, constant).  
+- Learned replacement values are stored in `imputer.statistics_`.  
+
+KNNImputer 
+- Replaces missing values using the mean of the k‑nearest neighbors for that feature.  
+- Distance is computed based on all available features.  
+
+IterativeImputer  
+- Trains a regression model per feature to predict missing values using other features.  
+- Iteratively refines predictions by retraining on updated data.  
+
+OneHotEncoder
+- Converts categorical features into binary indicator columns.  
+- Example: “red, green, blue” → three columns with 0/1 values.  
+- Handles unseen categories with `handle_unknown="ignore"`.  
+
+StandardScaler  
+- Standardizes numerical features by removing the mean and scaling to unit variance.  
+- Ensures features are on comparable scales for many ML algorithms.  
+
+ColumnTransformer  
+- Applies different preprocessing pipelines to different subsets of columns.  
+- Example: numeric columns → scaling, categorical columns → one‑hot encoding.  
+- Produces a single transformed dataset combining all results.  
+
+Feature Names In / Out  
+- Transformers track input feature names and output feature names.  
+- Example: OneHotEncoder expands one categorical column into multiple output columns.  
+- Useful for debugging and interpreting transformed datasets.  
+
+------------------------------------------------------------
+HANDLING TEXT AND CATEGORICAL FEATURES
+
+- Text data often requires tokenization, vectorization (e.g., CountVectorizer, TfidfVectorizer).  
+- Categorical data requires encoding (e.g., OneHotEncoder, OrdinalEncoder).  
+- After transformation, feature names change, always check `get_feature_names_out()` to see the new column names.  
+
+------------------------------------------------------------
+FEATURE SCALING AND TRANSFORMATION
+
+Machine learning algorithms often perform poorly when input features have very different scales.  
+Example: housing data → total rooms range from 6 to 39,320, while median income ranges from 0 to 15.  
+Without scaling, models may ignore smaller‑scale features and focus on larger ones.
+
+Two common scaling methods:
+
+1. Min‑Max Scaling (Normalization)  
+- Rescales values to a fixed range (default 0–1).  
+- Formula: (x – min) / (max – min).  
+- Sensitive to outliers: extreme values can squash the rest of the data.  
+- Scikit‑Learn tool: MinMaxScaler.  
+- Hyperparameter: feature_range (can set to –1 to 1 for neural networks).  
+
+2. Standardization (Z‑score scaling)  
+- Subtracts the mean, divides by the standard deviation.  
+- Result: mean = 0, standard deviation = 1.  
+- Not restricted to a fixed range.  
+- More robust to outliers compared to min‑max scaling.  
+- Scikit‑Learn tool: StandardScaler.  
+
+Code examples:
+from sklearn.preprocessing import StandardScaler  
+std_scaler = StandardScaler()  
+housing_num_std_scaled = std_scaler.fit_transform(housing_num)  
+
+from sklearn.preprocessing import MinMaxScaler  
+min_max_scaler = MinMaxScaler(feature_range=(-1, 1))  
+housing_num_min_max_scaled = min_max_scaler.fit_transform(housing_num)  
+
+------------------------------------------------------------
+HANDLING HEAVY‑TAILED AND MULTIMODAL FEATURES
+
+When a feature’s distribution has a heavy tail (values far from the mean are not exponentially rare), both min‑max scaling 
+and standardization will squash most values into a small range. Models generally don’t perform well in this situation.  
+
+Transformations for heavy tails:  
+- Square root or fractional power (0 < p < 1) → good for moderate heavy tails.  
+- Logarithm → useful for very long heavy tails (e.g., power law distributions). Example: population feature often follows a power law.
+  Applying log makes it closer to a Gaussian (bell‑shaped) distribution.  
+
+Bucketizing approach:  
+- Chop the distribution into equal‑sized buckets.  
+- Replace each value with the bucket index or percentile.  
+- Produces an almost uniform distribution, often eliminating the need for further scaling.  
+- Bucket indices can be divided by the number of buckets to force values into 0–1 range.  
+
+Multimodal distributions (two or more peaks):  
+- Bucketize and treat bucket IDs as categories.  
+- Encode with OneHotEncoder (avoid too many buckets).  
+- Helps the model learn different rules for different ranges.  
+- Example: housing_median_age → houses built ~35 years ago may have unique pricing patterns.  
+
+Radial Basis Function (RBF) features:  
+- Add similarity features for each mode.  
+- Gaussian RBF decays exponentially as values move away from a fixed point.  
+- Formula: exp(–γ(x – c)²), where c is the mode and γ controls decay speed.  
+- Example with Scikit‑Learn:  
+  from sklearn.metrics.pairwise import rbf_kernel  
+  age_simil_35 = rbf_kernel(housing[["housing_median_age"]], [[35]], gamma=0.1)  
+
+------------------------------------------------------------
+TRANSFORMING TARGET VALUES
+
+- Sometimes the target (labels) also need transformation, not just the input features.  
+- Example: if the target distribution has a heavy tail, you can apply a log transform.  
+- Important: the model will then predict the log of the target, so you must apply the inverse (exponential) to get predictions back in the original scale.  
+
+Scikit‑Learn tools:  
+- Most transformers have `inverse_transform()` to easily reverse transformations.  
+- Example: scale labels with `StandardScaler`, train a regression model, then use `inverse_transform()` to bring predictions back to the original scale.  
+
+Simpler option:  
+- Use `TransformedTargetRegressor`.  
+- It automatically applies the transformer to labels during training and reverses predictions during inference.  
+
+------------------------------------------------------------
+CUSTOM TRANSFORMERS
+
+- Scikit‑Learn provides many transformers, but you can write your own for custom tasks.  
+- For simple transformations, use `FunctionTransformer`.  
+  - Example: log transform → `FunctionTransformer(np.log, inverse_func=np.exp)`  
+  - Example: Gaussian RBF similarity → `FunctionTransformer(rbf_kernel, kw_args=dict(Y=[[35.]], gamma=0.1))`  
+  - Example: geographic similarity → use latitude/longitude with RBF kernel.  
+  - Example: feature ratio → `lambda X: X[:, [0]] / X[:, [1]]`  
+
+- For trainable transformers, write a custom class with `fit()`, `transform()`, and optionally `fit_transform()`.  
+  - Use `BaseEstimator` + `TransformerMixin` for convenience.  
+  - Example: `StandardScalerClone` that learns mean and std in `fit()` and applies scaling in `transform()`.  
+  - Always return `self` in `fit()`.  
+  - Learned parameters should end with `_` (e.g., `mean_`, `scale_`).  
+
+- Transformers should also provide `get_feature_names_out()` and `inverse_transform()` when possible.  
+
+------------------------------------------------------------
+CLUSTER SIMILARITY TRANSFORMER
+
+- Example of a custom transformer using KMeans:  
+  - `fit()` → run KMeans to find cluster centers.  
+  - `transform()` → compute RBF similarity between samples and cluster centers.  
+  - Produces new features representing similarity to each cluster.  
+- Hyperparameters:  
+  - `n_clusters` → number of clusters.  
+  - `gamma` → controls RBF decay.  
+  - `random_state` → ensures reproducibility.  
+- Output: matrix with one column per cluster, values show similarity strength.  
+
+------------------------------------------------------------
+TRANSFORMATION PIPELINES
+
+- Many preprocessing steps must be applied in the right order.  
+- Scikit‑Learn provides the `Pipeline` class to chain transformations together.  
+
+Example: numerical pipeline  
+1. Impute missing values (median).  
+2. Standardize features (zero mean, unit variance).  
+
+Code:
+from sklearn.pipeline import Pipeline  
+num_pipeline = Pipeline([  
+    ("impute", SimpleImputer(strategy="median")),  
+    ("standardize", StandardScaler()),  
+])  
+
+- Pipelines are built from (name, estimator) pairs.  
+- Names must be unique and avoid double underscores (__).  
+- All steps except the last must be transformers. The last can be a transformer or predictor.  
+- `fit()` runs each step in sequence.  
+- The pipeline exposes the same methods as the final estimator (`transform()` if last is transformer, `predict()` if last is predictor).  
+
+Alternative: `make_pipeline()` automatically names steps based on class names.  
+
+------------------------------------------------------------
+COLUMNTRANSFORMER
+
+- To handle numerical and categorical features together, use `ColumnTransformer`.  
+- Each step is defined by (name, transformer, columns).  
+- Example: numerical pipeline for numeric columns, categorical pipeline for categorical columns.  
+- Options:  
+  - "drop" → remove columns.  
+  - "passthrough" → leave columns unchanged.  
+- `make_column_selector()` can automatically select columns by type.  
+- `make_column_transformer()` builds a ColumnTransformer without naming steps manually.  
+
+Output:  
+- Returns a NumPy array.  
+- Use `get_feature_names_out()` to recover column names.  
+- Handles sparse/dense matrix mixing automatically (controlled by `sparse_threshold`).  
+
+------------------------------------------------------------
+FULL PIPELINE EXAMPLE
+
+Steps included:  
+- Impute missing values (median for numeric, most frequent for categorical).  
+- One‑hot encode categorical features.  
+- Compute ratio features: bedrooms_ratio, rooms_per_house, people_per_house.  
+- Add cluster similarity features (using latitude/longitude).  
+- Apply log transform to heavy‑tailed features.  
+- Standardize all numerical features.  
+
+Code outline:
+preprocessing = ColumnTransformer([  
+    ("bedrooms", ratio_pipeline(), ["total_bedrooms", "total_rooms"]),  
+    ("rooms_per_house", ratio_pipeline(), ["total_rooms", "households"]),  
+    ("people_per_house", ratio_pipeline(), ["population", "households"]),  
+    ("log", log_pipeline, ["total_bedrooms", "total_rooms", "population", "households", "median_income"]),  
+    ("geo", cluster_simil, ["latitude", "longitude"]),  
+    ("cat", cat_pipeline, make_column_selector(dtype_include=object)),  
+], remainder=default_num_pipeline)  
+
+Result:  
+- Produces 24 features after transformation.  
+- Example feature names: bedrooms__ratio, log__median_income, geo__Cluster 0 similarity, cat__ocean_proximity_INLAND, remainder__housing_median_age.  
+
+------------------------------------------------------------
