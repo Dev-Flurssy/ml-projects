@@ -74,6 +74,16 @@ Linear regression works best when these assumptions hold:
 These assumptions explain why linear regression sometimes fails.
 
 ------------------------------------------------------------
+STRATIFIED SAMPLING
+
+A sampling Technique where population is divided into Homogenous subgroups called strata
+Process:
+- Identify meaningful subgroups (e.g., income categories, age ranges, geographic regions).
+- Sample from each subgroup in proportion to its size in the overall population.
+
+Goal: Ensure that the sample (training/test set) is representative of the population, especially when some groups are small but important.
+
+------------------------------------------------------------
 COST FUNCTION FOR REGRESSION
 
 Regression models commonly minimize Mean Squared Error (MSE), which is the average squared difference between predicted and actual values.
@@ -157,6 +167,9 @@ Model learns patterns that generalize well.
 Non‑representative data  
 Model learns misleading patterns.
 
+Data snooping bias
+contaminating your test set by using it during training/model selection, which makes your performance estimates misleading.
+
 ------------------------------------------------------------
 MODEL COMPLEXITY
 
@@ -168,5 +181,33 @@ Dataset size is the amount of data used to train the model.
 
 High‑dimensional datasets have many features.  
 Low‑dimensional datasets have few features.
+
+------------------------------------------------------------
+DATASET SIZE CATEGORIES
+
+Size: Small
+Rows (instances): up to ~10k
+Columns (features): < 50
+Typical Handling: Easy to compute correlations directly (df.corr() is fine).
+
+Size: Medium
+Rows (instances): ~10k – 1M
+Columns (features): 50 – 500
+Typical Handling: Still feasible, but may need sampling or dimensionality reduction.
+
+Size: Large
+Rows (instances): ~1M – 100M
+Columns (features): 500 – 10k
+Typical Handling: Correlation matrix becomes heavy; use distributed computing (Spark, Dask) or approximate methods.
+
+Size: Really Large
+Rows (instances): >100M
+Columns (features): >10k
+Typical Handling: Full correlation matrix is impractical; rely on feature selection, embeddings, or specialized algorithms.
+
+------------------------------------------------------------
+NOTE
+
+when we have Geographical information scatterplot is good for visualization
 
 ------------------------------------------------------------
