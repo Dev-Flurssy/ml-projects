@@ -127,32 +127,6 @@ TRAIN / VALIDATION / TEST SPLIT
 Regression models must be evaluated on validation and test sets to measure real‑world performance and tune hyperparameters.
 
 ------------------------------------------------------------
-HYPERPARAMETERS
-
-A hyperparameter is something you set before training that controls how the model learns.  
-Hyperparameters are like knobs you turn before training.
-
-Turn the knob too far → the model becomes too simple.  
-Don’t turn it enough → the model may overfit.
-
-Examples of hyperparameters:
-learning rate  
-regularization strength  
-number of epochs  
-batch size  
-tree depth  
-number of neighbors (k in k‑NN)
-
-------------------------------------------------------------
-GENERALIZATION ERROR AND DATA MISMATCH
-
-The error rate on new cases is called the generalization error (or out‑of‑sample error).  
-Evaluating your model on the test set gives an estimate of this error and shows how well the model performs on unseen data.
-
-Data mismatch is the difference between training data and real‑life data.  
-Validation and test sets must be representative of real‑world data.
-
-------------------------------------------------------------
 DATA QUALITY ISSUES
 
 Sample noise  
