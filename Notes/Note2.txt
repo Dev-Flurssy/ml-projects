@@ -10,17 +10,233 @@ Regression is based on predictor variables and the nature of their relationship 
 ------------------------------------------------------------
 SIMPLE LINEAR REGRESSION
 
-Simple Linear Regression models the relationship between one independent variable (input) and one continuous dependent variable (output). It draws a straight line that best fits the data by minimizing the mean squared error.
+Simple Linear Regression is a statistical technique used to models the relationship between one independent variable (input) and one continuous dependent variable (output). It draws a straight line that best fits the data by minimizing the mean squared error. 
 
 It is simple and interpretable but cannot capture complex relationships because it only fits a straight line.  
 Example: predicting a student’s score based on hours studied.
 
 ------------------------------------------------------------
-GRADIENT DESCENT
+LOSS
 
-Gradient Descent is an optimization algorithm used to minimize the error of a machine learning model. It updates model parameters step‑by‑step in the direction that reduces the loss.
+Loss is a numerical metric that measures how far off the predicted is from actual value. It measures the distance between predictions and actual labels.
+
+Short arrows → the prediction is close to the truth → small loss.
+Long arrows → the prediction is far from the truth → large loss.
+
+The training process is all about adjusting the line so those arrows get shorter and shorter, meaning the model is learning to make better predictions.
 
 ------------------------------------------------------------
+LOSS IN MACHINE LEARNING  
+
+Loss is a number that shows how far off a model’s predictions are from the actual values. You can think of it as arrows drawn from each data point to the model’s prediction, the longer the arrow, the bigger the mistake. Training a model means adjusting it so those arrows get shorter, reducing the loss.  
+
+Common loss functions in regression:  
+- L1 Loss: Sum of absolute errors  
+- MAE (Mean Absolute Error): Average of absolute errors  
+- L2 Loss: Sum of squared errors  
+- MSE (Mean Squared Error): Average of squared errors  
+- RMSE (Root Mean Squared Error): Square root of MSE  
+
+------------------------------------------------------------  
+DISTANCE OF LOSS  
+
+Loss measures the difference between predicted and actual values. It focuses on the distance, not the direction. For example, if the model predicts 2 but the actual value is 5, the difference is –3. We don’t care about the negative sign, only that the distance is 3.  
+
+To remove the sign, loss functions use:  
+- Absolute value → |actual − predicted|  
+- Square of the difference → (actual − predicted)²  
+
+------------------------------------------------------------  
+CHOOSING A LOSS FUNCTION  
+
+The choice of loss function affects how the model handles outliers (values far from the typical range).  
+
+MSE (Mean Squared Error):  
+- Squares errors, so large mistakes count much more  
+- Model shifts closer to outliers, further from normal points  
+- Good if outliers are important and represent true data  
+- Often easier to optimize mathematically  
+- RMSE brings error back into the same units as labels  
+
+MAE (Mean Absolute Error):  
+- Treats all errors equally by taking absolute values  
+- Model stays closer to most points, less influenced by outliers  
+- More robust when you don’t want outliers to dominate  
+- Directly interpretable as the average error size  
+
+Quick rule of thumb:  
+- MSE if big errors matter a lot. If you believe the outliers are important and indicative of true data variance that the model should account for.
+- MAE if you want stability and less sensitivity to unusual data, i.e your dataset has significant outliers that you don't want to overly influence the
+  model. 
+
+------------------------------------------------------------
+GRADIENT DESCENT  
+
+Gradient descent is a mathematical technique that helps a model find the best weight and bias (the line’s slope and intercept) that minimize loss. 
+It works by starting with random values and then improving them step by step.  
+
+Process:  
+1. Start with random weights and bias near zero.  
+2. Calculate the loss with the current values.  
+3. Figure out the direction to adjust the weights and bias to reduce loss.  
+4. Move them a small step in that direction.  
+5. Repeat until the model can’t reduce the loss any further.  
+
+Think of it like walking downhill in fog: you can’t see the bottom, but at each step you feel which way is downhill and move a little in that direction. Eventually, you reach the lowest point, the minimum loss.  
+
+------------------------------------------------------------  
+MODEL CONVERGENCE 
+
+For a model to converge means that during training, it has reached the point where further updates to the weights and bias no longer reduce the loss in a meaningful way. In other words, the model has “settled” into its best possible fit for the data given the chosen loss function and training process.
+
+------------------------------------------------------------
+LOSS CURVES  
+
+When training a model, you often look at a loss curve to check if the model has converged. The loss curve plots loss (y‑axis) against iterations (x‑axis).  
+
+- At the start, loss is high because the weights and bias are random.  
+- As training continues, loss decreases as the model learns better weights and bias.  
+- Eventually, the curve flattens, this means the model has converged, or reached the point where further training doesn’t reduce loss significantly.  
+
+A smooth downward curve that levels off shows successful convergence. 
+If the curve stays high or fluctuates without settling, the model hasn’t converged properly.  
+
+------------------------------------------------------------
+CONVERGENCE AND CONVEX FUNCTIONS  
+
+For linear models, the loss surface is always convex, shaped like a smooth bowl with one lowest point. 
+This property guarantees that when the model converges, it has found the weights and bias that give the minimum possible loss.  
+
+If we graph the loss surface for one feature:  
+  - X‑axis = weight  
+  - Y‑axis = bias  
+  - Z‑axis = loss  
+  - The surface looks like a convex bowl.  
+
+- Gradient descent moves the weights and bias step by step downhill on this surface.  
+- The path looks like a ball rolling down the bowl until it reaches the bottom.  
+- At the bottom, there’s no more downward slope, this is the minimum loss, and the point of convergence.  
+
+------------------------------------------------------------  
+PARAMETERS VS HYPERPARAMETERS AND LEARNING RATE  
+
+Parameters are the values inside the model itself, like the **weights** and **bias**, which the model calculates and updates during training. Hyperparameters are values you set before training that control how the model learns, such as the **learning rate**.  
+
+LEARNING RATE  
+The learning rate is a number that controls how big the steps are during gradient descent:  
+- If the learning rate is too low → the model takes tiny steps and converges very slowly.  
+- If the learning rate is too high → the model overshoots the minimum loss and bounces around without converging.  
+- The goal is to pick a learning rate that’s just right so the model converges quickly and smoothly.  
+
+How it works:  
+- Gradient descent calculates the slope of the loss function.  
+- The slope is multiplied by the learning rate to decide how much to change the parameters.  
+- Example: if the slope is 2.5 and the learning rate is 0.01, the parameter changes by 0.025.  
+
+The ideal learning rate helps the model reduce loss quickly in the first few iterations, then gradually flatten out as it converges.  
+
+------------------------------------------------------------  
+BATCH SIZE
+
+Batch size is a hyperparameter that controls how many examples the model processes before updating its weights and bias. Using the entire dataset at once (full batch) is often impractical for very large datasets, so smaller batches are used.
+
+Two common approaches:
+- Stochastic Gradient Descent (SGD)
+- Mini‑Batch Stochastic Gradient Descent
+
+------------------------------------------------------------  
+STOCHASTIC GRADIENT DESCENT  
+
+Stochastic Gradient Descent (SGD) is an optimization algorithm widely used in machine learning, especially for large datasets. It is a variant of gradient descent designed for faster and scalable learning.  
+
+- Updates parameters using one data point or small batches at a time  
+- Reduces computation compared to full batch gradient descent  
+- Efficient for very large datasets and online learning  
+- Widely used in deep learning for training models  
+
+------------------------------------------------------------  
+WORKING OF STOCHASTIC GRADIENT DESCENT  
+
+In traditional gradient descent, gradients are computed using the entire dataset, which is computationally expensive.  
+In SGD, the gradient is calculated for each training example (or a small subset) instead of the whole dataset. 
+This makes updates faster but introduces more noise in the path of optimization.  
+
+------------------------------------------------------------  
+PATH COMPARISON  
+
+- Batch Gradient Descent → smooth path toward minimum (uses all data each step)  
+- Stochastic Gradient Descent → noisy zig‑zag path, but faster and scalable  
+
+------------------------------------------------------------  
+IMPLEMENTING STOCHASTIC GRADIENT DESCENT FROM SCRATCH  
+
+- Generating the Data  
+- Defining the SGD Function  
+   - Initializes parameters randomly  
+   - Adds a bias term to X  
+   - Shuffles data each epoch  
+   - Updates parameters using single samples or mini‑batches  
+   - Tracks loss using Mean Squared Error (MSE)  
+
+------------------------------------------------------------  
+APPLICATIONS  
+
+- Deep learning: training large neural networks  
+- NLP: Word2Vec, transformers  
+- Computer vision: image classification, object detection  
+- Reinforcement learning: deep Q‑networks, policy gradient methods  
+
+------------------------------------------------------------  
+ADVANTAGES  
+
+- Faster and efficient updates using few samples  
+- Requires less memory, suitable for large datasets  
+- Stochastic updates help escape local minima  
+- Supports online learning  
+
+------------------------------------------------------------  
+CHALLENGES  
+
+- Updates are noisy, causing fluctuations in loss  
+- Sensitive to learning rate (too high → divergence, too low → slow learning)  
+- May take longer to converge overall despite faster updates  
+
+------------------------------------------------------------  
+MINI‑BATCH STOCHASTIC GRADIENT DESCENT  
+
+Mini‑Batch SGD is a compromise between full‑batch and pure SGD. Instead of using one example or the entire dataset, it processes a small group of examples per update.  
+
+- Batch size can range from 2 to a few hundred, depending on dataset size and compute resources.  
+- Each batch is chosen randomly, gradients are averaged, and weights/bias are updated once per iteration.  
+- Small batch sizes behave more like SGD (noisy but fast).  
+- Larger batch sizes behave more like full‑batch gradient descent (smoother but slower).  
+- Mini‑batch training often achieves the best balance:  
+  - Faster than full‑batch  
+  - Less noisy than pure SGD  
+  - Efficient use of hardware like GPUs (parallel processing works best with batches).  
+- Widely used in practice because it combines efficiency, stability, and scalability.  
+
+------------------------------------------------------------  
+EPOCHS  
+
+During training, an epoch means the model has processed every example in the training set once. For example, if the dataset has 1,000 examples and the mini‑batch size is 100, it takes 10 iterations to complete one epoch.  
+
+Training usually requires many epochs, meaning the system processes the entire dataset multiple times. The number of epochs is a hyperparameter you set before training begins. Often, you need to experiment to find how many epochs are enough for the model to converge. More epochs generally improve the model but also increase training time.  
+
+Relation between batch size and epochs:  
+
+- Full batch: Updates weights and bias once per epoch.  
+  Example: 1,000 examples, 20 epochs → 20 updates.  
+
+- Stochastic Gradient Descent (SGD): Updates after each example.  
+  Example: 1,000 examples, 20 epochs → 20,000 updates.  
+
+- Mini‑Batch SGD: Updates after each batch.  
+  Example: 1,000 examples, batch size 100, 20 epochs → 200 updates.  
+
+------------------------------------------------------------  
+
+------------------------------------------------------------  
 TYPES OF LINEAR REGRESSION
 
 Univariate Linear Regression  

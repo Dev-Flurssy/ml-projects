@@ -2,11 +2,14 @@ INTRODUCTION TO MACHINE LEARNING
 
 Spam filters were one of the earliest practical uses of Machine Learning in the 1990s, helping millions automatically detect unwanted emails.
 
-Machine Learning (ML) is the science of programming computers to learn from data. Instead of giving step‑by‑step instructions, we provide examples, and the system learns patterns from them.
+Machine Learning (ML) is the science of programming computers to learn from data. Instead of giving step‑by‑step instructions, we provide examples, and the system learns patterns from them. It is the process of training a software called a model to make useful predictions or generate useful content from data.
 
 The examples used for learning are the training set.  
 Each example is a training instance (or sample).  
 The part of the system that learns and makes predictions is the model.
+
+Data is the driving force of ML, it comes in words numbers labels tables etc.
+Datsets are related data. Good datasets are both large and highly diverse
 
 Data Mining focuses on discovering hidden patterns and trends in large datasets.  
 Machine Learning focuses on learning patterns that can be used to make predictions.
@@ -52,6 +55,7 @@ Instance‑Based Learning, Model‑Based Learning
 SUPERVISED LEARNING
 
 Supervised learning uses labeled data. The model compares its predictions with the true labels, adjusts itself, and improves over time.
+machine can make predictions after seeing lots of data with the correct answers and then discovering the connections between the elements in the data that produce the correct answers.
 
 Goal: Make accurate predictions on new, unseen data.
 

@@ -42,58 +42,7 @@ Here:
 - y.shape = (70000,) → Labels for each image.
 
 ------------------------------------------------------------  
-STOCHASTIC GRADIENT DESCENT
-
-Stochastic Gradient Descent (SGD) is an optimization algorithm widely used in machine learning, especially for large datasets. It is a variant of gradient descent designed for faster and scalable learning.
-
-- Updates parameters using one data point or small batches at a time  
-- Reduces computation compared to full batch gradient descent  
-- Efficient for very large datasets and online learning  
-- Widely used in deep learning for training models  
-
-------------------------------------------------------------  
-WORKING OF STOCHASTIC GRADIENT DESCENT
-
-In traditional gradient descent, gradients are computed using the entire dataset, which is computationally expensive.  
-In SGD, the gradient is calculated for each training example (or a small subset) instead of the whole dataset. This makes updates faster but introduces more noise in the path of optimization.
-
-------------------------------------------------------------  
-PATH COMPARISON
-
-- Batch Gradient Descent → smooth path toward minimum (uses all data each step)  
-- Stochastic Gradient Descent → noisy zig‑zag path, but faster and scalable  
-
-------------------------------------------------------------  
-IMPLEMENTING STOCHASTIC GRADIENT DESCENT FROM SCRATCH
-
-1. Generating the Data  
-2. Defining the SGD Function  
-We define a function that:  
-- Initializes parameters randomly  
-- Adds a bias term to X  
-- Shuffles data each epoch  
-- Updates parameters using single samples or mini‑batches  
-- Tracks loss using Mean Squared Error (MSE)   
-
-------------------------------------------------------------  
-Applications  
-- Deep learning: training large neural networks  
-- NLP: Word2Vec, transformers  
-- Computer vision: image classification, object detection  
-- Reinforcement learning: deep Q‑networks, policy gradient methods  
-
-Advantages  
-- Faster and efficient updates using few samples  
-- Requires less memory, suitable for large datasets  
-- Stochastic updates help escape local minima  
-- Supports online learning  
-
-Challenges  
-- Updates are noisy, causing fluctuations in loss  
-- Sensitive to learning rate (too high → divergence, too low → slow learning)  
-- May take longer to converge overall despite faster updates  
-
-------------------------------------------------------------  
+S
 
 CROSS_VAL_SCORE VS CROSS_VAL_PREDICT
 
