@@ -1,158 +1,225 @@
-CLASSIFICATION AND LINEAR MODELS
+CLASSIFICATION
 
-A linear model makes predictions by adding the input features, each multiplied by a learned weight:
+- Classification is a supervised machine learning method used to predict labels or categories.  
+- It learns patterns from labeled data and uses them to assign new data points to predefined classes.  
+- Predict categories: Determines the class of new data points.  
+- Uses labeled data: Trained on datasets where the correct class is known.  
+- Common examples: Spam vs non‑spam emails, diseased vs healthy patients.  
+- Example: A model trained on images labeled as dogs or cats can predict whether a new image is a dog or a cat based on features like color, texture, or shape.  
 
-y = w0x0 + w1x1 + ... + wpxp + b  
-w = learned weight  
-x = input  
-b = bias (intercept)
+------------------------------------------------------------  
+BINARY CLASSIFICATION 
 
-Weights measure how important each feature is:  
-Positive weight → feature increases prediction  
-Negative weight → feature decreases prediction  
-Zero weight → feature does not matter
+Decision based on features: The model uses input features to determine the correct class.  
+1. Binary Classification  
+Binary classification is the simplest type of classification where data is divided into two possible categories. 
+The model analyzes input features and decides which of the two classes the data belongs to. 
 
-------------------------------------------------------------
-LINEAR REGRESSION VS LINEAR CLASSIFICATION
+Some important aspects of binary classification are:
+Two classes only: Each data point is assigned to one of two categories.  
+Common examples: Spam vs not spam emails, diseased vs healthy patients.  
+Decision based on features: The model uses input features to determine the correct class.  
 
-Linear Regression  
-Predicts a continuous number using a straight-line relationship between features and target.  
-1 feature → line  
-2 features → plane  
-3+ features → hyperplane  
-Produces straight, flat shapes (no curves).
+------------------------------------------------------------  
+BINARY CROSS‑ENTROPY (LOG LOSS)
 
-KNeighborsRegressor → flexible wiggly curve  
-Linear Regression → straight line
+- Binary cross‑entropy is the loss function used in binary classification.  
+- It measures how far the predicted probability is from the actual label (0 or 1).  
+- If the model predicts a probability close to the true label, the loss is small.  
+- If the model is confident but wrong, the loss becomes very large.  
+- Formula (for one example):  
+  - If actual y = 1 → loss = −log(p)  
+  - If actual y = 0 → loss = −log(1 − p)  
+- For the whole dataset, we take the average across all examples.  
 
-The more features you have, the more powerful linear regression becomes because the model moves from line → plane → hyperplane.  
-If you have more features than training samples, a linear model can fit the training data perfectly.
+------------------------------------------------------------  
+HOW BINARY CROSS‑ENTROPY WORKS
 
-All linear regression models use the same formula but differ in how they learn weights and control complexity.
+- When predicted probability matches the true label, the loss is low.  
+- When predicted probability is far from the true label, the loss is high.  
+- The logarithm punishes confident wrong predictions heavily.  
+- This helps the model learn better decision boundaries during training.  
 
-------------------------------------------------------------
-ORDINARY LEAST SQUARES (OLS)
+------------------------------------------------------------  
+WHY LOG LOSS INSTEAD OF SQUARED LOSS
 
-OLS chooses weights and bias that minimize the squared error.  
-It has no complexity control, so it can overfit when features are many or noisy.
+- Squared loss works well for linear outputs that change at a constant rate.  
+- Logistic regression outputs probabilities on an S‑shaped curve.  
+- Near 0 or 1, small changes in input cause big changes in probability.  
+- Squared loss cannot capture this behavior properly.  
+- Log Loss handles probabilities better because it becomes very large when the model is confident but wrong.  
 
-------------------------------------------------------------
-RIDGE, LASSO, ELASTIC NET
+------------------------------------------------------------  
+MULTICLASS CLASSIFICATION 
 
-Ridge Regression  
-Adds L2 regularization to prevent weights from becoming too large.  
-Small weights → simpler model → less overfitting.  
-Useful for noisy data and correlated features.
+- Multiclass classification is used when data must be divided into more than two categories.  
+- The model looks at the input features and chooses the single class that best matches the data.  
+- Multiple classes: Each data point belongs to one of several possible categories.  
+- Single final prediction: The model outputs only one class for each input.  
+- Common examples: Classifying images as cat, dog or bird.  
+- Real-world uses: Digit recognition, species identification, product categorization.  
+- Features: Measurable properties of instances (like petal length).  
+- Labels/Classes: Discrete categories (like setosa, versicolor, virginica).  
 
-Lasso Regression  
-Adds L1 regularization.  
-Can force some weights to become zero → automatic feature selection.  
-Useful when only a few features matter.
+------------------------------------------------------------  
+STEP-BY-STEP IMPLEMENTATION )
 
-Elastic Net  
-Combination of L1 and L2 regularization.  
-Useful when features are correlated and you want both stability and feature selection.
+Step 1: Import Libraries  
+- sklearn.datasets gives standard datasets like Iris.  
+- train_test_split divides data into training and testing sets.  
+- accuracy_score and confusion_matrix measure how well the model performs.  
+- matplotlib and seaborn help visualize results.
 
-Regularization means adding a rule that prevents the model from becoming too complex.
+Step 2: Load and Explore the Dataset  
+- Iris dataset has 150 samples and 3 classes: setosa, versicolor, virginica.  
+- iris.data contains the numeric features.  
+- iris.target contains the class labels (0, 1, 2).
 
-------------------------------------------------------------
-LINEAR CLASSIFIERS
+Step 3: Split the Data  
+- 70% of the data is used for training.  
+- 30% is used for testing.  
+- random_state ensures the split is always the same.
 
-A linear classifier tries to separate classes using a straight line (2D), a plane (3D), or a hyperplane (higher dimensions):
+Step 4: Train Models and Make Predictions  
+Decision Tree Classifier  
+- Learns simple decision rules arranged in a tree.  
+- Each node checks a feature and splits the data.  
+- Leaves represent final class predictions.  
+- After training, the model predicts labels for the test set.  
+- accuracy_score tells how many predictions were correct.  
+- confusion_matrix shows which classes were predicted correctly or incorrectly.  
+- A heatmap helps visualize the confusion matrix.
 
-score = w0x0 + w1x1 + ... + wpxp  
+------------------------------------------------------------  
+MULTILABEL CLASSIFICATION 
+
+- Multilabel classification allows one data point to have more than one label at the same time.  
+- Labels can overlap, meaning categories are not mutually exclusive.  
+- The output is a set of labels instead of a single label.  
+- Common example: A movie can be tagged as both action and comedy.  
+- Real-world example: A restaurant review may mention food, service, price, ambience, or anecdotes all at once.  
+- Example: “The food was great but the service was slow” → labels: Food, Service.   
+
+------------------------------------------------------------  
+STEP-BY-STEP IMPLEMENTATION (SIMPLE EXPLANATION)
+
+Step 1: Import Libraries  
+- pandas and numpy help load and manipulate data.  
+- train_test_split divides the dataset into training and testing parts.  
+- TfidfVectorizer converts text into numerical features.  
+- OneVsRestClassifier with KNN allows predicting multiple labels.  
+- accuracy_score and hamming_loss measure performance.   
+
+Step 2: Prepare Text Data and TF‑IDF  
+- Load the dataset containing restaurant reviews and aspect labels.  
+- Convert text into TF‑IDF features.  
+- Split data into 70% training and 30% testing.     
+
+Step 3: Train the Model  
+- Use MLKNN (KNN inside One‑Vs‑Rest) to learn multiple labels for each review.  
+- The model learns which aspects appear together in text.     
+
+Step 4: Test on New Sentences  
+- Convert new text into TF‑IDF.  
+- Predict multiple aspect labels for the new review.  
+- Example: “I like the food but I hate the place” → model predicts relevant aspects.     
+
+Step 5: Evaluate the Model  
+- Accuracy shows how many label sets were predicted correctly.  
+- Hamming Loss shows how many individual labels were misclassified.  
+- Lower Hamming Loss means better multilabel performance.  
+- Example result: Accuracy ≈ 0.31, Hamming Loss ≈ 0.29.     
+
+------------------------------------------------------------  
+CLASSIFICATION ALGORITHMS
+
+Classification algorithms are methods used to learn patterns from labeled data and then assign new data points to the correct class. 
+Different algorithms learn in different ways, and they can be grouped into two main categories: linear classifiers and non‑linear classifiers.
+
+------------------------------------------------------------  
+1. LINEAR CLASSIFIERS 
+
+Linear classifiers draw a straight line (or plane) to separate classes. 
+They work well when the relationship between features and classes is simple and roughly linear.
+Linear classifiers separate classes using a straight line (2D), a plane (3D), or a hyperplane (higher dimensions).  
+They make predictions using a weighted sum of features:
+
+score = w0x0 + w1x1 + ... + wpxp + b  
 If score > 0 → class +1  
-If score < 0 → class -1  
-If score = 0 → decision boundary
+If score < 0 → class -1
 
-Linear Regression vs Linear Classification  
-LR output is a number.  
-LC output is a class.  
-LR fits data with a line/plane.  
-LC separates classes with a line/plane.
 
-------------------------------------------------------------
-LOGISTIC REGRESSION
+Logistic Regression  
+- Uses a linear equation and a sigmoid function to output probabilities.  
+- Good for binary and multiclass classification.  
+- Fast, simple, and widely used.
 
-A linear classifier that uses the logistic (sigmoid) function to convert scores into probabilities:
+Support Vector Machines (Linear SVM)  
+- Finds the best straight line that maximizes the margin between classes.  
+- Works well when data is high‑dimensional.
 
-probability = 1 / (1 + e^-score)
+Single‑layer Perceptron  
+- Basic neural network with one layer.  
+- Learns a linear boundary using simple weight updates.
 
-Used for binary classification.  
-Decision boundary is linear.
+Stochastic Gradient Descent (SGD) Classifier  
+- Uses gradient descent to update weights one sample at a time.  
+- Useful for very large datasets.
 
-------------------------------------------------------------
-LINEAR SVM (Support Vector Machine)
+------------------------------------------------------------  
+2. NON‑LINEAR CLASSIFIERS 
 
-Uses hinge loss.  
-Focuses on maximizing the margin, the distance between the boundary and the closest points.  
-Produces sharper, more stable boundaries.
+Non‑linear classifiers can draw curved or complex boundaries. They capture patterns that linear models cannot.
 
-C controls how strict the model is:
+K‑Nearest Neighbours  
+- Looks at the closest neighbours in the dataset.  
+- Classifies based on majority vote.  
+- Simple but can be slow for large datasets.
 
-High C → weak regularization → complex model → tries to classify every point correctly → sensitive to noise  
-Low C → strong regularization → simpler model → ignores outliers → smoother boundary
+Kernel SVM  
+- Uses kernel functions to transform data into higher dimensions.  
+- Allows SVM to create curved boundaries.
 
-Small C → small coefficients → simpler model  
-Large C → large coefficients → complex model
+Decision Tree Classification  
+- Splits data using simple rules (like “petal length > 2”).  
+- Easy to interpret.  
+- Can overfit if not controlled.
 
-Coefficient sign flips show instability when features are correlated.
+Random Forests  
+- Builds many decision trees and averages their predictions.  
+- More stable and accurate than a single tree.
 
-------------------------------------------------------------
-MULTI‑CLASS LINEAR MODELS (One‑vs‑Rest)
+AdaBoost  
+- Builds many weak learners (usually small trees).  
+- Each learner focuses more on previously misclassified points.
 
-Most linear models (Linear SVM, Logistic Regression) are binary.  
-To handle multiple classes, use One‑vs‑Rest:
+Bagging Classifier  
+- Trains multiple models on different random subsets of data.  
+- Reduces variance and improves stability.
 
-For K classes:  
-Classifier 1: A vs not A  
-Classifier 2: B vs not B  
-Classifier 3: C vs not C  
-…
+Voting Classifier  
+- Combines predictions from multiple models.  
+- Final class is chosen by majority vote.
 
-When a new point arrives, each classifier produces a score.  
-The class with the highest score wins.
+Extra Trees Classifier  
+- Similar to Random Forest but splits are more random.  
+- Often faster and sometimes more accurate.
 
-------------------------------------------------------------
-REGULARIZATION PARAMETERS
+Multi‑layer Artificial Neural Networks  
+- Multiple layers of neurons learn complex patterns.  
+- Can model highly non‑linear relationships.  
+- Used in deep learning.
 
-Linear models have one main parameter controlling complexity:
-
-α (alpha) → regression models (Ridge, Lasso)  
-C → classification models (LinearSVC, LogisticRegression)
-
-Typical values: 0.0001, 0.001, 0.01, 0.1, 1, 10, 100
-
-Large α or small C → strong regularization → simpler model  
-Small α or large C → weak regularization → more complex model
-
-Choosing L1 vs L2  
-L1 → feature selection, interpretability  
-L2 → stability, general performance
-
-------------------------------------------------------------
-MERITS AND DEMERITS OF LINEAR MODELS
-
-Merits:  
-Fast to train and predict  
-Works well with sparse data  
-Simple and interpretable (when features are not correlated)
-
-Demerits:  
-Hard to interpret when features are correlated  
-Not great in low-dimensional spaces  
-Struggles when true boundary is curved or complex
-
-------------------------------------------------------------
+------------------------------------------------------------  
 NAIVE BAYES CLASSIFIER
 
 Naive Bayes is one of the simplest ML classifiers.  
-It predicts a class by calculating how likely each class is given the features, assuming all features are independent (Naive assumption).
+It predicts a class by calculating how likely each class is given the features, assuming all features are independent.
 
 It counts how often each feature appears in each class.  
 For new data, it checks which class is most probable and picks the class with the highest probability.
 
-Types of Naive Bayes in scikit-learn:
+Types of Naive Bayes in scikit‑learn:
 
 GaussianNB  
 For continuous features.  
@@ -161,24 +228,24 @@ Stores mean and standard deviation per feature per class.
 
 BernoulliNB  
 For binary (0/1) features.  
-Used in text classification (presence/absence of words).
+Used in text classification (presence or absence of words).
 
 MultinomialNB  
 For count data (word frequencies).  
 Stores average counts per feature per class.
 
-Merits:  
+Merits  
 Great for text classification (spam, sentiment, topic detection)  
-Works well with very high-dimensional data  
+Works well with very high‑dimensional data  
 Extremely fast  
 Good when training data is huge
 
-Demerits:  
+Demerits  
 Independence assumption is unrealistic → slightly worse accuracy  
 Not good when features interact strongly  
 GaussianNB struggles if data is not normally distributed
 
-------------------------------------------------------------
+------------------------------------------------------------  
 DECISION TREES
 
 A decision tree makes predictions by asking a series of yes/no questions.  
@@ -192,33 +259,32 @@ The tree chooses the split that best separates the classes using impurity measur
 Gini impurity  
 Entropy (information gain)
 
-Decision Trees grow recursively:  
+Decision trees grow recursively:  
 Pick best question → split data → repeat → stop when data is clean
 
-Each split uses one feature → boundaries are axis‑parallel (vertical or horizontal lines).
-
+Each split uses one feature → boundaries are axis‑parallel (vertical or horizontal lines).  
 A leaf is pure when all points inside belong to the same class.
 
-------------------------------------------------------------
+------------------------------------------------------------  
 WHY DECISION TREES OVERFIT
 
 Trees keep splitting until every leaf is pure.  
 This memorizes the training data and performs poorly on new data.  
 Tiny leaves often fit outliers → overfitting.
 
-------------------------------------------------------------
+------------------------------------------------------------  
 HOW TO PREVENT OVERFITTING
 
-Pre‑pruning (stop early):  
+Pre‑pruning (stop early)  
 max_depth → limit how many questions the tree can ask  
 max_leaf_nodes → limit number of leaves  
 min_samples_split → minimum samples required to split  
 min_samples_leaf → minimum samples per leaf
 
-Post‑pruning (cut back later):  
+Post‑pruning (cut back later)  
 Grow the tree fully, then remove branches that don’t improve validation performance.
 
-------------------------------------------------------------
+------------------------------------------------------------  
 FEATURE IMPORTANCE
 
 Decision trees compute how much each feature contributed to splitting the data.  
@@ -227,13 +293,316 @@ Importance ranges from 0 to 1.
 Higher → feature used more often and made bigger splits  
 All importances add up to 1.
 
-------------------------------------------------------------
-PRUNING SUMMARY
+------------------------------------------------------------  
+MULTI‑CLASS LINEAR MODELS (One‑vs‑Rest)
 
-Pruning reduces tree size by removing branches with little predictive power.  
-Makes the model simpler and more generalizable.
+Most linear models are binary.  
+To handle multiple classes:
 
-------------------------------------------------------------
+For K classes:  
+Model 1: Class A vs not A  
+Model 2: Class B vs not B  
+Model 3: Class C vs not C  
+
+Each model gives a score.  
+The class with the highest score is chosen.
+
+------------------------------------------------------------  
+REGULARIZATION IN CLASSIFICATION
+
+Regularization controls model complexity.
+
+C → used in Logistic Regression and Linear SVM  
+Small C → strong regularization → simpler model  
+Large C → weak regularization → more complex model
+
+L1 regularization  
+- Makes some weights exactly zero.  
+- Good for feature selection.
+
+L2 regularization  
+- Shrinks weights smoothly.  
+- Good for stability and general performance.
+
+------------------------------------------------------------  
+MERITS AND DEMERITS OF CLASSIFICATION MODELS
+
+Merits  
+- Fast to train and predict  
+- Works well with high‑dimensional or sparse data  
+- Easy to interpret when features are not correlated
+
+Demerits  
+- Hard to interpret when features are correlated  
+- Struggles when the true boundary is curved  
+- Non‑linear models may be slower or harder to tune
+
+
+------------------------------------------------------------  
+APPLICATIONS 
+
+Email Spam Filtering  
+- Classifies emails as spam or not spam using text features, sender patterns, and message structure.
+
+Credit Risk Assessment  
+- Predicts whether a loan applicant may default.  
+- Uses features like income, credit score, past loan history.
+
+Medical Diagnosis  
+- Helps classify diseases such as cancer or diabetes.  
+- Uses patient data like test results, symptoms, and medical history.
+
+Image Classification  
+- Used in facial recognition, autonomous driving, and medical imaging.  
+- Models learn patterns from pixel values.
+
+Sentiment Analysis  
+- Determines if text is positive, negative, or neutral.  
+- Used in social media monitoring and customer feedback.
+
+Fraud Detection  
+- Identifies unusual transaction patterns.  
+- Helps banks detect suspicious activity.
+
+Recommendation Systems  
+- Not strictly classification, but often uses similar ideas.  
+- Predicts user preferences based on similarity or ranking.
+
+------------------------------------------------------------  
+CLASSIFICATION METRICS 
+
+Classification models assign data into categories. To check how well a model performs, we use evaluation metrics. 
+These metrics help us understand whether the model is making correct predictions, missing important cases, or producing too many false alarms.
+
+------------------------------------------------------------  
+CONFUSION MATRIX
+
+A confusion matrix summarizes model performance using four counts:
+
+True Positives (TP)  
+Correctly predicted positive cases.  
+Example: correctly detecting a disease.  
+Document reference: “True Positives are the cases where the model correctly predicted the positive class…” 
+
+True Negatives (TN)  
+Correctly predicted negative cases.  
+Example: correctly identifying non‑spam emails.  
+Document reference: “True Negatives are the cases where the model correctly predicted the negative class…” 
+
+False Positives (FP)  
+Model predicts positive when it is actually negative.  
+Example: diagnosing a disease that is not present.  
+Document reference: “False Positives occur when the model incorrectly predicts the positive class…” 
+
+False Negatives (FN)  
+Model predicts negative when it is actually positive.  
+Example: missing a spam email or missing a disease.  
+Document reference: “False Negatives happen when the model incorrectly predicts the negative class…” 
+
+------------------------------------------------------------  
+ACCURACY
+
+Accuracy measures how many predictions were correct:
+
+Accuracy = (TP + TN) / (TP + TN + FP + FN)
+
+Strengths  
+Easy to understand.  
+Works well when classes are balanced.
+
+Limitations  
+Misleading for imbalanced datasets.  
+Treats all errors equally, even when some errors are more serious. 
+
+------------------------------------------------------------  
+PRECISION
+
+Precision measures how many predicted positives were actually positive:
+
+Precision = TP / (TP + FP)
+
+Useful when false positives are costly.  
+Example: medical diagnosis, spam detection.  
+“Precision provides insights into the model's ability to make accurate positive predictions…” 
+
+------------------------------------------------------------  
+RECALL (SENSITIVITY)
+
+Recall measures how many actual positives were correctly found:
+
+Recall = TP / (TP + FN)
+
+Useful when missing positives is dangerous.  
+Example: disease detection, security threat detection.  
+“Recall…assesses a model's ability to correctly identify all positive instances…” 
+
+------------------------------------------------------------  
+F1‑SCORE
+
+F1‑Score combines precision and recall into one number:
+
+F1 = 2 × (Precision × Recall) / (Precision + Recall)
+
+Useful for imbalanced datasets.  
+Balances false positives and false negatives.  
+“The F1-Score is…calculated using the harmonic mean of precision and recall…” 
+
+------------------------------------------------------------  
+ROC CURVE
+
+The ROC curve (Receiver Operating Characteristic curve) is a tool for evaluating binary classifiers.
+It shows how well a model separates positive and negative classes at different thresholds.
+
+It plots:
+Y‑axis: True Positive Rate (TPR) — also called Recall or Sensitivity
+X‑axis: False Positive Rate (FPR) — also called Fall‑out
+
+So the ROC curve is:
+Sensitivity vs. (1 – Specificity)
+
+Where:
+Specificity = True Negative Rate (TNR)
+FPR = 1 – TNR
+The ROC curve 
+
+A good classifier’s ROC curve:
+rises quickly toward the top-left corner
+meaning high recall and low false positives
+A random classifier is a diagonal line from (0,0) to (1,1).
+
+“The ROC curve visually illustrates how the model's performance changes…” 
+
+------------------------------------------------------------  
+AUC (AREA UNDER ROC CURVE)
+The Area Under the ROC Curve (AUC) is a single number that summarizes the entire ROC curve.
+
+It answers one question:
+How well does the classifier separate positive and negative classes?
+
+AUC = 0.5 → random guessing  
+Same as flipping a coin, ROC curve is the diagonal line
+
+AUC = 1.0 → perfect model
+Always ranks positive samples higher than negative samples, ROC curve hugs the top-left corner
+
+AUC < 0.5  Worse than random
+Model is systematically wrong
+(You could invert its predictions to get >0.5)
+
+Useful for comparing models and handling imbalanced datasets.  
+“The Area Under the ROC Curve (AUC) quantifies the overall performance…” 
+
+------------------------------------------------------------  
+LIMITATIONS OF ROC‑AUC
+
+Does not show the cost of false positives or false negatives.  
+Should be used together with precision, recall, and F1‑Score.
+
+------------------------------------------------------------  
+WHAT MULTICLASS CLASSIFICATION MEANS
+
+Binary classifiers handle 2 classes.  
+Multiclass classifiers handle more than 2 classes (for example, digits 0–9).
+
+Some algorithms support multiclass classification natively:  
+LogisticRegression  
+RandomForestClassifier  
+GaussianNB  
+
+Others are strictly binary:  
+SGDClassifier  
+SVC  
+
+For binary‑only algorithms, Scikit‑Learn automatically applies a multiclass strategy.
+
+------------------------------------------------------------  
+STRATEGY 1: ONE‑VERSUS‑REST (OvR)
+
+OvR trains one binary classifier per class.
+
+For MNIST (10 digits), you train 10 classifiers:  
+0 vs all  
+1 vs all  
+…  
+9 vs all  
+
+How prediction works:  
+Run the input through all classifiers.  
+Each classifier outputs a score.  
+Pick the class with the highest score.
+
+Advantages:  
+Simple  
+Works well for most algorithms  
+Scikit‑Learn uses OvR automatically for many models
+
+------------------------------------------------------------  
+STRATEGY 2: ONE‑VERSUS‑ONE (OvO)
+
+OvO trains one classifier for every pair of classes.
+
+For MNIST (10 classes):  
+N × (N − 1) / 2 = 10 × 9 / 2 = 45 classifiers
+
+Examples:  
+0 vs 1  
+0 vs 2  
+…  
+8 vs 9  
+
+How prediction works:  
+Run the input through all 45 classifiers.  
+Each classifier votes for one class.  
+The class with the most votes wins.
+
+Advantages:  
+Each classifier trains on only two classes → small training sets  
+Useful for algorithms that scale poorly with dataset size (like SVMs)
+
+Disadvantages:  
+Many classifiers  
+More computation during prediction
+
+------------------------------------------------------------  
+WHICH STRATEGY IS BETTER
+
+For SVMs, OvO is often faster and preferred.  
+For most other algorithms, OvR is simpler and works well.
+
+Scikit‑Learn automatically chooses:  
+OvR for many models  
+OvO for SVC
+
+------------------------------------------------------------  
+SCIKIT‑LEARN AUTOMATIC BEHAVIOR
+
+If you use a binary‑only classifier (like SVC) on a multiclass dataset:  
+Scikit‑Learn detects this  
+It automatically applies OvR or OvO  
+No manual coding is required
+
+------------------------------------------------------------  
+EXAMPLE FROM THE BOOK
+
+The book trains an SVM on only the first 2,000 MNIST images because:  
+SVMs scale poorly with large datasets  
+OvO is preferred for SVMs  
+Training 45 classifiers on 60,000 images would be slow  
+Using 2,000 images makes the demonstration fast
+
+------------------------------------------------------------  
+FINAL SUMMARY
+
+Multiclass classification handles more than two classes.  
+OvR trains one classifier per class and picks the highest score.  
+OvO trains one classifier per pair and picks the class with the most wins.  
+SVMs prefer OvO because they train faster on small subsets.  
+Scikit‑Learn automatically chooses the correct strategy.  
+The MNIST example uses SVC on 2,000 images to keep training fast.
+
+------------------------------------------------------------  
+
+If you want, I can also rewrite your **binary classification**, **multilabel classification**, or **classification metrics** in the same clean exam‑ready style.
 MATPLOTLIB LOG SCALES
 
 plt.plot() → both axes linear  

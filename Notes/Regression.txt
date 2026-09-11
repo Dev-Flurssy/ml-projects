@@ -70,19 +70,15 @@ Linear regression works best when these assumptions hold:
 These assumptions explain why linear regression sometimes fails.
 
 ------------------------------------------------------------
-LOSS
+LOSS IN MACHINE LEARNING  
 
-Loss is a numerical metric that measures how far off prediction is from actual value. It measures the distance between predictions and actual labels.
+Loss is a number that shows how far off a model’s predictions are from the actual values. You can think of it as arrows drawn from each data point to the model’s prediction, the longer the arrow, the bigger the mistake. Training a model means adjusting it so those arrows get shorter, reducing the loss.  
 
 Short arrows → the prediction is close to the truth → small loss.
 Long arrows → the prediction is far from the truth → large loss.
 
 The training process is all about adjusting the line so those arrows get shorter and shorter, meaning the model is learning to make better predictions.
 
-------------------------------------------------------------
-LOSS IN MACHINE LEARNING  
-
-Loss is a number that shows how far off a model’s predictions are from the actual values. You can think of it as arrows drawn from each data point to the model’s prediction, the longer the arrow, the bigger the mistake. Training a model means adjusting it so those arrows get shorter, reducing the loss.  
 
 Common loss functions in regression:  
 - L1 Loss: Sum of absolute errors  
@@ -136,7 +132,15 @@ Process:
 4. Move them a small step in that direction.  
 5. Repeat until the model can’t reduce the loss any further.  
 
-Think of it like walking downhill in fog: you can’t see the bottom, but at each step you feel which way is downhill and move a little in that direction. Eventually, you reach the lowest point, the minimum loss.  
+
+It does not measure error. It reduces error.
+
+Think of it like this:
+Loss function = tells you how wrong the model is
+Gradient descent = tells you how to fix it
+
+It is like walking downhill in fog, you can’t see the bottom, but at each step you feel which way is downhill and move a little in that direction. 
+Eventually, you reach the lowest point, the minimum loss.  
 
 ------------------------------------------------------------  
 MODEL CONVERGENCE 
@@ -352,7 +356,7 @@ SIGMOID FUNCTION
 
 - Is a key component that converts raw model output into a probability between 0 and 1.    
 - takes any real value mapping it into a range of 0 and 1 Producing an “S”-shaped curve. 
-- Threshold (usually 0.5) determines class assignment if above thrshold it's class 1 else class 0 
+- Threshold (usually 0.5) determines class assignment. 
 
 ------------------------------------------------------------  
  WORKING OF LOGISTIC REGRESSION  
@@ -688,24 +692,6 @@ Regression identifies relationships between variables but does not prove causati
 TRAIN / VALIDATION / TEST SPLIT
 
 Regression models must be evaluated on validation and test sets to measure real‑world performance and tune hyperparameters.
-
-------------------------------------------------------------
-DATA QUALITY ISSUES
-
-Sample noise  
-Training sample is too small or contains unlucky or unusual examples.
-
-Sample bias  
-Training sample is large but collected in a flawed or unrepresentative way.
-
-Representative training data  
-Model learns patterns that generalize well.
-
-Non‑representative data  
-Model learns misleading patterns.
-
-Data snooping bias
-contaminating your test set by using it during training/model selection, which makes your performance estimates misleading.
 
 ------------------------------------------------------------
 MODEL COMPLEXITY
