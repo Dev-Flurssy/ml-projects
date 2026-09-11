@@ -1,0 +1,456 @@
+SUPPORT VECTOR MACHINE (SVM)
+
+Support Vector Machine is a supervised learning algorithm used for classification and regression tasks.
+It works by finding the best boundary, called a hyperplane, that separates different classes in the data. 
+The main goal is to maximize the margin between the hyperplane and the closest data points, known as support vectors.
+A larger margin generally improves the model’s ability to generalize to new, unseen data.
+
+SVM is especially useful for binary classification problems such as spam vs. not spam or cat vs. dog.
+
+------------------------------------------------------------
+KEY CONCEPTS
+
+- Hyperplane: A decision boundary that separates classes in feature space, represented by the equation wx + b = 0.  
+- Support Vectors: The closest data points to the hyperplane, which determine the margin and boundary.  
+- Margin: The distance between the hyperplane and the support vectors. SVM aims to maximize this margin.  
+- Kernel: A function that maps data into higher dimensions, allowing SVM to handle non-linear separations.  
+- Hard Margin: A strict separation with no misclassifications, possible only if data is perfectly separable.  
+- Soft Margin: Allows some misclassifications, balancing margin size and classification accuracy.  
+- C: A regularization parameter that controls the trade-off between maximizing margin and minimizing misclassification.
+  High C → strict, fewer misclassifications, smaller margin. Low C → more tolerance, larger margin.
+- Hinge Loss: A loss function that penalizes misclassified points or those within the margin.  
+- Dual Problem: A mathematical formulation that enables efficient computation and the use of the kernel trick.
+
+------------------------------------------------------------
+INTUITION
+
+Imagine separating cats and dogs with a line. The best line is the one that stays as far away as possible from both groups. 
+The animals closest to the line are the support vectors. If the data cannot be separated with a straight line, 
+the kernel trick maps it into a higher dimension where separation becomes possible.
+
+------------------------------------------------------------
+WORKING OF SUPPORT VECTOR MACHINE (SVM) ALGORITHM
+
+The key idea behind the SVM algorithm is to find the hyperplane that best separates two classes by maximizing the margin between them. The margin is the distance from the hyperplane to the nearest data points, called support vectors, on each side.
+
+------------------------------------------------------------
+HARD MARGIN
+
+When multiple hyperplanes can separate the data, the best one is the hyperplane that maximizes the margin. This is known as the hard margin. It ensures a clear separation between the classes if the data is perfectly separable.  
+
+Example: If we have several possible lines (L1, L2, L3), the hard margin hyperplane is the one that leaves the largest gap between the nearest points of both classes.
+
+------------------------------------------------------------
+SOFT MARGIN AND OUTLIERS
+
+In real-world data, outliers often exist. For example, a single blue point may appear inside the region of red points. 
+A hard margin SVM would struggle here because it cannot perfectly separate the data.  
+
+Soft margin SVM allows some misclassifications by introducing slack variables. 
+This balances margin maximization with tolerance for errors, making the model more robust to noisy data and outliers.
+
+------------------------------------------------------------
+OBJECTIVE FUNCTION
+
+SVM optimizes an objective function that balances two terms:  
+1. Maximizing the margin (making the boundary as wide as possible).  
+2. Minimizing penalties for misclassifications or margin violations.  
+
+Objective Function = (1 / margin) + λ ∑ penalty  
+
+The penalty is often defined using hinge loss:  
+- If a point is correctly classified and lies outside the margin, loss = 0.  
+- If a point is inside the margin or misclassified, loss > 0.  
+- The closer the violation, the higher the hinge loss.
+
+------------------------------------------------------------------------------------------------------------------------
+NON-LINEARLY SEPARABLE DATA IN SVM
+
+When data is not linearly separable, meaning it cannot be divided by a straight line, SVM uses a technique called kernels. Kernels map the data into a higher-dimensional space where it becomes linearly separable. This transformation allows SVM to find a decision boundary even for complex, non-linear data.
+
+------------------------------------------------------------
+KERNEL FUNCTION
+
+A kernel is a mathematical function that implicitly performs this mapping without explicitly computing the new coordinates. 
+This makes SVM efficient when working with non-linear data. By applying a kernel function, 
+the data points that were inseparable in the original space can be separated in the transformed space.
+
+------------------------------------------------------------
+TYPES OF KERNELS
+
+Linear Kernel: Used when the data is linearly separable.  
+Polynomial Kernel: Maps data into a polynomial feature space, allowing curved boundaries.  
+Radial Basis Function (RBF) Kernel: Maps data based on distances between points, creating flexible and smooth boundaries.  
+
+------------------------------------------------------------
+EXAMPLE
+
+Consider data points arranged in a circle. In the original space, no straight line can separate the inside points from the outside points. By applying an RBF kernel, the data is transformed into a higher-dimensional space where a linear hyperplane can separate them effectively.
+
+------------------------------------------------------------
+MATHEMATICAL COMPUTATION OF SVM
+
+Support Vector Machine (SVM) is based on the idea of finding a hyperplane that separates two classes (+1 and -1) with the maximum margin.  
+
+------------------------------------------------------------
+HYPERPLANE EQUATION
+
+The linear hyperplane is represented as:  
+wᵀx + b = 0  
+
+Where:  
+w → normal vector to the hyperplane  
+b → bias term (distance of hyperplane from origin along w)  
+
+------------------------------------------------------------
+DISTANCE FROM A POINT TO HYPERPLANE
+
+For a data point xᵢ, the distance to the hyperplane is:  
+dᵢ = (wᵀxᵢ + b) / ||w||  
+
+Here ||w|| is the Euclidean norm of w.  
+
+------------------------------------------------------------
+LINEAR SVM CLASSIFIER
+
+Prediction rule:  
+ŷ = +1 if wᵀx + b ≥ 0  
+ŷ = -1 if wᵀx + b < 0  
+
+------------------------------------------------------------
+OPTIMIZATION PROBLEM (HARD MARGIN)
+
+For linearly separable data, the objective is:  
+minimize (1/2) ||w||²  
+
+Subject to:  
+yᵢ (wᵀxᵢ + b) ≥ 1, for i = 1, 2, …, m  
+
+This ensures all points are correctly classified and lie outside the margin.  
+
+------------------------------------------------------------
+SOFT MARGIN
+
+When data is not perfectly separable, slack variables ζᵢ are introduced:  
+
+minimize (1/2) ||w||² + C Σ ζᵢ  
+
+Subject to:  
+yᵢ (wᵀxᵢ + b) ≥ 1 − ζᵢ  
+ζᵢ ≥ 0  
+
+Here:  
+C → regularization parameter controlling trade-off between margin size and misclassification penalty  
+ζᵢ → degree of margin violation for each point  
+
+------------------------------------------------------------
+DUAL PROBLEM
+
+The dual formulation uses Lagrange multipliers αᵢ:  
+
+maximize Σ αᵢ − (1/2) Σ Σ αᵢ αⱼ yᵢ yⱼ K(xᵢ, xⱼ)  
+
+Where:  
+αᵢ → Lagrange multipliers  
+yᵢ → class labels  
+K(xᵢ, xⱼ) → kernel function measuring similarity  
+
+Support vectors are those with αᵢ > 0.  
+
+------------------------------------------------------------
+DECISION BOUNDARY
+
+Once solved, the decision function is:  
+f(x) = Σ αᵢ yᵢ K(xᵢ, x) + b  
+
+The bias term b is determined using support vectors.  
+
+------------------------------------------------------------
+TYPES OF SUPPORT VECTOR MACHINE (SVM)
+
+Support Vector Machines can be divided into two main types based on the nature of the decision boundary:
+
+------------------------------------------------------------
+LINEAR SVM
+
+Linear SVMs use a straight hyperplane to separate data points of different classes.  
+They are suitable when the data is linearly separable, meaning a single line (in 2D) or hyperplane (in higher dimensions) can completely divide the classes.  
+The chosen hyperplane is the one that maximizes the margin between the classes.  
+
+------------------------------------------------------------
+NON-LINEAR SVM
+
+Non-Linear SVMs are used when data cannot be separated by a straight line.  
+By applying kernel functions, the data is transformed into a higher-dimensional space where it becomes linearly separable.  
+In this transformed space, a linear SVM is applied, but the resulting boundary in the original space is nonlinear.  
+
+Common kernels include:  
+- Polynomial Kernel: Creates polynomial decision boundaries.  
+- Radial Basis Function (RBF) Kernel: Creates flexible boundaries based on distances between points.  
+
+------------------------------------------------------------
+IMPLEMENTATION EXAMPLE
+
+We can use SVM to classify cancer cases as benign or malignant using patient data.  
+
+```python
+from sklearn.datasets import load_breast_cancer
+import matplotlib.pyplot as plt
+from sklearn.inspection import DecisionBoundaryDisplay
+from sklearn.svm import SVC
+
+cancer = load_breast_cancer()
+X = cancer.data[:, :2]
+y = cancer.target
+
+svm = SVC(kernel="linear", C=1)
+svm.fit(X, y)
+
+DecisionBoundaryDisplay.from_estimator(
+        svm,
+        X,
+        response_method="predict",
+        alpha=0.8,
+        cmap="Pastel1",
+        xlabel=cancer.feature_names[0],
+        ylabel=cancer.feature_names[1],
+    )
+
+plt.scatter(X[:, 0], X[:, 1], c=y, s=20, edgecolors="k")
+plt.show()
+```
+
+------------------------------------------------------------
+ADVANTAGES
+
+- Performs well in high-dimensional spaces.  
+- Handles nonlinear data using kernels.  
+- Robust to outliers with soft margin.  
+- Supports both binary and multiclass classification.  
+- Memory efficient since it focuses on support vectors.  
+
+------------------------------------------------------------
+LIMITATIONS
+
+- Training can be slow for large datasets.  
+- Requires careful parameter tuning (C, kernel choice).  
+- Sensitive to noisy data and overlapping classes.  
+- Less interpretable compared to simpler models.  
+- Needs proper feature scaling for good performance.  
+
+------------------------------------------------------------
+SUPPORT VECTOR REGRESSION (SVR)
+
+Support Vector Regression is a supervised learning algorithm used to predict continuous values. Instead of finding a hyperplane to separate classes, SVR fits a function within a defined error margin around the data points. It uses kernel functions to handle both linear and complex non-linear relationships.
+
+SVR is effective for high-dimensional data, works well with limited samples, and controls model flexibility using regularization parameters.
+
+------------------------------------------------------------
+LINEAR KERNEL SVR
+
+Linear SVR is applied when the relationship between input features and the target variable is approximately linear. It fits a straight regression function in the original feature space without transforming the data into higher dimensions.
+
+Kernel Function:  
+K(xᵢ, xⱼ) = xᵢ · xⱼ  
+
+When to use:  
+- Data shows a linear trend  
+- Large datasets with many features  
+- Interpretability is important  
+
+Linear SVR is computationally efficient, interpretable, and suitable for datasets where features have a direct proportional relationship with the output.
+
+------------------------------------------------------------
+NON-LINEAR KERNEL SVR
+
+Non-linear SVR is used when the relationship between input and output is complex and cannot be captured by a straight line. 
+Kernel functions implicitly map data into higher-dimensional spaces where a linear relationship can be learned. 
+This enables SVR to model curved patterns and complex feature interactions.
+
+------------------------------------------------------------
+COMMON NON-LINEAR KERNELS
+
+RBF (Gaussian) Kernel: Measures similarity based on distance, creating smooth and flexible regression curves. 
+Effective for localized and non-linear patterns.  
+Polynomial Kernel: Models polynomial relationships between features and targets. 
+Useful for polynomial interactions but computationally expensive for higher degrees.  
+Sigmoid Kernel: Resembles neural network activation functions. Less commonly used in regression due to stability issues.  
+
+------------------------------------------------------------
+IMPLEMENTATION OF SUPPORT VECTOR REGRESSION (SVR)
+
+Support Vector Regression can be implemented step by step using Scikit-Learn. Below is a structured workflow:
+
+------------------------------------------------------------
+STEP 1: IMPORT LIBRARIES
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+```
+
+------------------------------------------------------------
+STEP 2: LOAD DATASET
+
+```python
+data = load_diabetes()
+X = data.data
+y = data.target
+```
+
+------------------------------------------------------------
+STEP 3: SELECT ONE FEATURE
+
+```python
+X = X[:, 2].reshape(-1, 1)   # BMI feature
+```
+
+------------------------------------------------------------
+STEP 4: TRAIN-TEST SPLIT
+
+```python
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+```
+
+------------------------------------------------------------
+STEP 5: FEATURE SCALING
+
+```python
+scaler_X = StandardScaler()
+scaler_y = StandardScaler()
+
+X_train = scaler_X.fit_transform(X_train)
+X_test = scaler_X.transform(X_test)
+
+y_train = scaler_y.fit_transform(y_train.reshape(-1, 1)).ravel()
+y_test = scaler_y.transform(y_test.reshape(-1, 1)).ravel()
+```
+
+------------------------------------------------------------
+STEP 6: TRAIN LINEAR KERNEL SVR
+
+```python
+svr_linear = SVR(kernel='linear', C=100, epsilon=0.1)
+svr_linear.fit(X_train, y_train)
+y_pred_linear = svr_linear.predict(X_test)
+```
+
+Think of epsilon as: “How much error am I willing to ignore?”
+Small epsilon (0.1) → model tries to be very precise
+Large epsilon (1, 2, 5) → model ignores small deviations, focuses only on big errors
+
+------------------------------------------------------------
+STEP 7: TRAIN RBF KERNEL SVR
+
+```python
+svr_rbf = SVR(kernel='rbf', C=100, gamma=0.5, epsilon=0.1)
+svr_rbf.fit(X_train, y_train)
+y_pred_rbf = svr_rbf.predict(X_test)
+```
+
+Think of gamma as a zoom level:
+High gamma → zoomed‑in → model reacts to tiny details
+Low gamma → zoomed‑out → model sees only big trends
+
+------------------------------------------------------------
+STEP 8: SORT TEST DATA
+
+```python
+sorted_idx = np.argsort(X_test[:, 0])
+X_test_sorted = X_test[sorted_idx]
+y_test_sorted = y_test[sorted_idx]
+y_pred_linear_sorted = y_pred_linear[sorted_idx]
+y_pred_rbf_sorted = y_pred_rbf[sorted_idx]
+```
+
+------------------------------------------------------------
+STEP 9: PLOT LINEAR SVR
+
+```python
+plt.figure(figsize=(8, 5))
+plt.scatter(X_test_sorted, y_test_sorted, color='green', label='Actual')
+plt.plot(X_test_sorted, y_pred_linear_sorted, color='black', linewidth=2, label='Linear SVR')
+plt.title("Linear Kernel SVR")
+plt.xlabel("BMI (scaled)")
+plt.ylabel("Disease Progression (scaled)")
+plt.legend()
+plt.show()
+```
+
+------------------------------------------------------------
+STEP 10: PLOT RBF SVR
+
+```python
+plt.figure(figsize=(8, 5))
+plt.scatter(X_test_sorted, y_test_sorted, color='green', label='Actual')
+plt.plot(X_test_sorted, y_pred_rbf_sorted, color='blue', linewidth=2, label='RBF SVR")
+plt.title("RBF Kernel SVR – Diabetes Dataset")
+plt.xlabel("BMI (scaled)")
+plt.ylabel("Disease Progression (scaled)")
+plt.legend()
+plt.show()
+```
+
+------------------------------------------------------------
+STEP 11: EVALUATE MODELS
+
+```python
+rmse_linear = np.sqrt(mean_squared_error(y_test, y_pred_linear))
+mae_linear = mean_absolute_error(y_test, y_pred_linear)
+
+print("Linear SVR RMSE:", rmse_linear)
+print("Linear SVR MAE:", mae_linear)
+
+rmse_rbf = np.sqrt(mean_squared_error(y_test, y_pred_rbf))
+mae_rbf = mean_absolute_error(y_test, y_pred_rbf)
+
+print("RBF SVR RMSE:", rmse_rbf)
+print("RBF SVR MAE:", mae_rbf)
+```
+
+------------------------------------------------------------
+RESULTS
+
+Linear SVR RMSE ≈ 0.84  
+Linear SVR MAE ≈ 0.67  
+
+RBF SVR RMSE ≈ 0.87  
+RBF SVR MAE ≈ 0.68  
+
+This shows that for this dataset, the Linear SVR performs slightly better than the RBF SVR.  
+
+------------------------------------------------------------
+APPLICATIONS OF SUPPORT VECTOR REGRESSION (SVR)
+
+Medical Prediction: Used to estimate disease progression and patient health outcomes from clinical data.  
+Financial Forecasting: Applied in predicting stock prices, returns, and market trends with non-linear behavior.  
+Energy Demand Estimation: Helps forecast electricity load and energy consumption patterns.  
+Sales Forecasting: Used to predict product demand and future sales in business analytics.  
+Engineering Modelling: Applied in modeling physical systems and scientific regression problems.  
+
+------------------------------------------------------------
+ADVANTAGES
+
+Good Generalization: Margin-based learning helps SVR perform well on unseen data.  
+Handles Non-Linearity: Kernel functions allow SVR to model complex relationships.  
+Robust to Noise: ε-insensitive loss reduces sensitivity to small errors and noise.  
+Effective with Small Data: Performs well even with limited training samples.  
+Kernel Flexibility: Different kernels can be chosen based on problem requirements.  
+
+------------------------------------------------------------
+LIMITATIONS
+
+Hyperparameter Sensitivity: Requires careful tuning of C, ε, and kernel parameters.  
+High Computational Cost: Training becomes slow for large datasets.  
+Scaling Requirement: Feature scaling is mandatory for good performance.  
+Low Interpretability: Non-linear SVR models are hard to interpret.  
+Kernel Selection Difficulty: Choosing the right kernel often needs experimentation.  
+
+------------------------------------------------------------
