@@ -42,7 +42,11 @@ Here:
 - y.shape = (70000,) → Labels for each image.
 
 ------------------------------------------------------------  
-PERFORMANCE METRICS
+CLASSIFICATION METRICS 
+
+Classification models assign data into categories. To check how well a model performs, we use evaluation metrics. 
+These metrics help us understand whether the model is making correct predictions, missing important cases, or producing too many false alarms.
+
 ------------------------------------------------------------ 
 CROSS_VAL_SCORE VS CROSS_VAL_PREDICT
 
@@ -107,6 +111,26 @@ Interpretation:
 - 1,891 False Negatives → missed actual “5s.”  
 - 3,530 True Positives → correctly found “5s.”  
 
+True Positives (TP)  
+Correctly predicted positive cases.  
+Example: correctly detecting a disease.  
+Document reference: “True Positives are the cases where the model correctly predicted the positive class…” 
+
+True Negatives (TN)  
+Correctly predicted negative cases.  
+Example: correctly identifying non‑spam emails.  
+Document reference: “True Negatives are the cases where the model correctly predicted the negative class…” 
+
+False Positives (FP)  
+Model predicts positive when it is actually negative.  
+Example: diagnosing a disease that is not present.  
+Document reference: “False Positives occur when the model incorrectly predicts the positive class…” 
+
+False Negatives (FN)  
+Model predicts negative when it is actually positive.  
+Example: missing a spam email or missing a disease.  
+Document reference: “False Negatives happen when the model incorrectly predicts the negative class…” 
+
 ------------------------------------------------------------  
 WHY IT MATTERS
 
@@ -154,32 +178,50 @@ WHY THIS MATTERS
 This makes it easy to see at a glance: if your matrix has numbers outside the diagonal, those are errors.  
 
 ------------------------------------------------------------  
-PRECISION AND RECALL SIMPLIFIED
+ACCURACY
 
-Precision and recall are two key metrics for evaluating classifiers. 
+Accuracy measures how many predictions were correct:
+
+Accuracy = (TP + TN) / (TP + TN + FP + FN)
+
+Strengths  
+Easy to understand.  
+Works well when classes are balanced.
+
+Limitations  
+Misleading for imbalanced datasets.  
+Treats all errors equally, even when some errors are more serious. 
 
 ------------------------------------------------------------  
 PRECISION
 
 Precision answers: “When the model says positive, how often is it correct?”  
 
-Formula:  \[\text{Precision} = \frac{TP}{TP + FP}\]
+Formula:  TP / (TP + FP)
 
 - TP (True Positives): correctly predicted positives  
 - FP (False Positives): predicted positive but actually negative  
 
 Example: If the model predicts 100 “5s,” and 90 are truly 5s, precision = 90%.  
 
+Useful when false positives are costly.  
+Example: medical diagnosis, spam detection.  
+“Precision provides insights into the model's ability to make accurate positive predictions…” 
+
 ------------------------------------------------------------  
 RECALL
 
 Recall answers: “Out of all the actual positives, how many did the model catch?”  
 
-Formula:  \[\text{Recall} = \frac{TP}{TP + FN}\]
+Formula:  TP / (TP + FN)
 
 - FN (False Negatives): actual positives the model missed  
 
 Example: If there are 120 real “5s,” and the model finds 90, recall = 75%.  
+
+Useful when missing positives is dangerous.  
+Example: disease detection, security threat detection.  
+“Recall…assesses a model's ability to correctly identify all positive instances…” 
 
 ------------------------------------------------------------  
 WHY BOTH MATTER
@@ -230,16 +272,19 @@ The F1 score is a way to combine precision and recall into a single number.
 It is the harmonic mean of precision and recall, which means it gives more weight to low values.  
 A classifier only gets a high F1 score if both precision and recall are high.
 
-------------------------------------------------------------  
-FORMULA \[F1 = \frac{2 \cdot (\text{Precision} \cdot \text{Recall})}{\text{Precision} + \text{Recall}}\]
 
-Or in terms of confusion matrix values:  
-\[F1 = \frac{2 \cdot TP}{2 \cdot TP + FP + FN}\]
+Formula = 2 × (Precision × Recall) / (Precision + Recall)
+
+
 
 Where:  
 - TP = True Positives  
 - FP = False Positives  
 - FN = False Negatives  
+
+Useful for imbalanced datasets.  
+Balances false positives and false negatives.  
+“The F1-Score is…calculated using the harmonic mean of precision and recall…” 
 
 ------------------------------------------------------------  
 EXAMPLE
@@ -249,8 +294,22 @@ from sklearn.metrics import f1_score
 f1_score(y_train_5, y_train_pred)
 ```
 
-If precision = 0.84 and recall = 0.65:  
-\[F1 = \frac{2 \cdot (0.84 \cdot 0.65)}{0.84 + 0.65} \approx 0.73\]
+F1 = 2 * (Precision * Recall) / (Precision + Recall)
+
+Using Precision = 0.84 and Recall = 0.65:
+
+Step 1: Multiply precision and recall  
+0.84 * 0.65 = 0.546
+
+Step 2: Multiply by 2  
+2 * 0.546 = 1.092
+
+Step 3: Add precision and recall  
+0.84 + 0.65 = 1.49
+
+Step 4: Divide  
+F1 = 1.092 / 1.49  
+F1 ≈ 0.73
 
 ------------------------------------------------------------  
 WHY IT MATTERS
@@ -382,5 +441,139 @@ SIMPLE TAKEAWAY
 You choose the threshold by looking at precision/recall curves and picking the cutoff that matches your project’s needs.  
 - Higher threshold → higher precision, lower recall  
 - Lower threshold → higher recall, lower precision  
+
+------------------------------------------------------------  
+ROC CURVE
+
+The ROC curve (Receiver Operating Characteristic curve) is a tool for evaluating binary classifiers.
+It shows how well a model separates positive and negative classes at different thresholds.
+
+It plots:
+Y‑axis: True Positive Rate (TPR) — also called Recall or Sensitivity
+X‑axis: False Positive Rate (FPR) — also called Fall‑out
+
+So the ROC curve is:
+Sensitivity vs. (1 – Specificity)
+
+Where:
+Specificity = True Negative Rate (TNR)
+FPR = 1 – TNR
+The ROC curve 
+
+A good classifier’s ROC curve:
+rises quickly toward the top-left corner
+meaning high recall and low false positives
+A random classifier is a diagonal line from (0,0) to (1,1).
+
+“The ROC curve visually illustrates how the model's performance changes…” 
+
+------------------------------------------------------------  
+AUC (AREA UNDER ROC CURVE)
+The Area Under the ROC Curve (AUC) is a single number that summarizes the entire ROC curve.
+
+It answers one question:
+How well does the classifier separate positive and negative classes?
+
+AUC = 0.5 → random guessing  
+Same as flipping a coin, ROC curve is the diagonal line
+
+AUC = 1.0 → perfect model
+Always ranks positive samples higher than negative samples, ROC curve hugs the top-left corner
+
+AUC < 0.5  Worse than random
+Model is systematically wrong
+(You could invert its predictions to get >0.5)
+
+Useful for comparing models and handling imbalanced datasets.  
+“The Area Under the ROC Curve (AUC) quantifies the overall performance…” 
+
+------------------------------------------------------------  
+LIMITATIONS OF ROC‑AUC
+
+Does not show the cost of false positives or false negatives.  
+Should be used together with precision, recall, and F1‑Score.
+
+------------------------------------------------------------  
+WHAT MULTICLASS CLASSIFICATION MEANS
+
+Binary classifiers handle 2 classes.  
+Multiclass classifiers handle more than 2 classes (for example, digits 0–9).
+
+Some algorithms support multiclass classification natively:  
+LogisticRegression  
+RandomForestClassifier  
+GaussianNB  
+
+Others are strictly binary:  
+SGDClassifier  
+SVC  
+
+For binary‑only algorithms, Scikit‑Learn automatically applies a multiclass strategy.
+
+------------------------------------------------------------  
+STRATEGY 1: ONE‑VERSUS‑REST (OvR)
+
+OvR trains one binary classifier per class.
+
+For MNIST (10 digits), you train 10 classifiers:  
+0 vs all  
+1 vs all  
+…  
+9 vs all  
+
+How prediction works:  
+Run the input through all classifiers.  
+Each classifier outputs a score.  
+Pick the class with the highest score.
+
+Advantages:  
+Simple  
+Works well for most algorithms  
+Scikit‑Learn uses OvR automatically for many models
+
+------------------------------------------------------------  
+STRATEGY 2: ONE‑VERSUS‑ONE (OvO)
+
+OvO trains one classifier for every pair of classes.
+
+For MNIST (10 classes):  
+N × (N − 1) / 2 = 10 × 9 / 2 = 45 classifiers
+
+Examples:  
+0 vs 1  
+0 vs 2  
+…  
+8 vs 9  
+
+How prediction works:  
+Run the input through all 45 classifiers.  
+Each classifier votes for one class.  
+The class with the most votes wins.
+
+Advantages:  
+Each classifier trains on only two classes → small training sets  
+Useful for algorithms that scale poorly with dataset size (like SVMs)
+
+Disadvantages:  
+Many classifiers  
+More computation during prediction
+
+------------------------------------------------------------  
+WHICH STRATEGY IS BETTER
+
+For SVMs, OvO is often faster and preferred.  
+For most other algorithms, OvR is simpler and works well.
+
+Scikit‑Learn automatically chooses:  
+OvR for many models  
+OvO for SVC
+
+------------------------------------------------------------  
+SCIKIT‑LEARN AUTOMATIC BEHAVIOR
+
+If you use a binary‑only classifier (like SVC) on a multiclass dataset:  
+Scikit‑Learn detects this  
+It automatically applies OvR or OvO  
+No manual coding is required
 
 ------------------------------------------------------------  
