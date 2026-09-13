@@ -1,0 +1,696 @@
+HOW A MODEL INGEST DATA WITH FEATURE VECTOR
+
+A machine‑learning model does not understand what a car, apartment, or patient is.  
+It only understands numbers.  
+When a record enters the model, it is immediately turned into a feature vector — a list of numeric values arranged in a fixed order.  
+This means the model never sees the real object, only the numbers that describe it.
+
+------------------------------------------------------------  
+FROM A RECORD TO A VECTOR
+
+Take one car from the dataset:
+
+- 4 years old  
+- 56,000 km  
+- 1,600 cc engine  
+- Sold for 11,200 GBP  
+
+The model converts this into:
+
+[4, 56000, 1600, 11200]
+
+Each number sits in a fixed position that always represents the same feature.  
+The model reads the vector from left to right and does not know what the numbers mean beyond their numeric value.
+
+------------------------------------------------------------  
+WHY THIS MATTERS
+
+- Order matters: every row must follow the same feature order  
+- Everything must be numeric: models only work with numbers  
+- Every row must have the same length: all records produce vectors of identical shape  
+- Stacking all vectors forms a matrix the model uses during training  
+
+The model treats each feature vector as a point in space.  
+Similar cars appear close together, unusual cars appear far away.
+
+------------------------------------------------------------  
+MULTICOLLINEARITY MEANS
+
+Multicollinearity means two or more numerical features in your dataset carry almost the same information.
+They move together, rise together, fall together, and behave so similarly that the model cannot tell which one is actually responsible for the effect.
+
+When features are highly correlated, the model sees them as duplicates rather than independent signals.
+This makes the model unstable, inflates variance, and causes unreliable or overly sensitive weight estimates.
+
+------------------------------------------------------------  
+THE COMPLETE NUMERICAL FEATURE INSPECTION CHECKLIST  
+
+
+1 RANGE  
+What it tells you:  
+- Are values tiny or huge  
+- Are scales very different across features  
+- Will gradient descent struggle  
+
+Why it matters:  
+A feature ranging from 0.001 to 1,000,000 will dominate others unless scaled.
+
+------------------------------------------------------------  
+2 SHAPE (DISTRIBUTION)  
+What it tells you:  
+- Symmetric  
+- Left‑skewed  
+- Right‑skewed  
+- Bimodal  
+
+Why it matters:  
+Skewed data often needs a log transform to stabilize variance and reduce extreme values.
+
+------------------------------------------------------------  
+3 OUTLIERS  
+What it tells you:  
+- Are there extreme values far from the rest  
+- Are they errors or rare but real events  
+
+Why it matters:  
+Outliers distort scaling, means, and gradients.  
+The 1.5 × IQR rule is commonly used to detect them.
+
+------------------------------------------------------------  
+4 SENTINEL VALUES  
+What it tells you:  
+- Are there magic numbers like −1, 0, or 999 meaning “unknown”  
+
+Why it matters:  
+Models treat these as real measurements unless you fix them.
+
+------------------------------------------------------------   
+5 MISSINGNESS PATTERNS  
+What it tells you:  
+- How many values are missing  
+- Whether missingness is random or patterned  
+
+Why it matters:  
+Non‑random missingness can signal bias or hidden structure.
+
+------------------------------------------------------------  
+6 CONSTANT OR NEAR‑CONSTANT FEATURES  
+What it tells you:  
+- Does the feature have almost no variation  
+
+Why it matters:  
+It carries no useful information and can be removed.
+
+------------------------------------------------------------  
+7 CORRELATIONS BETWEEN FEATURES  
+What it tells you:  
+- Are two features basically the same  
+- Is there multicollinearity  
+
+Why it matters:  
+Redundant features confuse linear models and inflate variance.
+
+------------------------------------------------------------  
+8 CLUSTERS OR NATURAL GROUPS  
+What it tells you:  
+- Does the distribution have multiple peaks  
+
+Why it matters:  
+Suggests segmentation or binning.
+
+------------------------------------------------------------  
+9 SEASONALITY OR TIME PATTERNS  
+What it tells you:  
+- Do values change by hour, day, or month  
+
+Why it matters:  
+Time‑based features may be needed.
+
+------------------------------------------------------------  
+10 DRIFT OVER TIME  
+What it tells you:  
+- Are values shifting across months or years  
+
+Why it matters:  
+Models trained on old distributions fail on new ones.
+
+------------------------------------------------------------  
+11 SPARSITY  
+What it tells you:  
+- Are there many zeros  
+- Are non‑zero values rare  
+
+Why it matters:  
+Suggests binarization or special handling.
+
+------------------------------------------------------------  
+12 NON‑LINEAR RELATIONSHIPS  
+What it tells you:  
+- Does the feature relate to the target in a curved or threshold pattern  
+
+Why it matters:  
+Linear models may fail; tree‑based models or feature engineering may be needed.
+
+------------------------------------------------------------  
+13 DUPLICATE ROWS OR REPEATED PATTERNS  
+What it tells you:  
+- Are there repeated entries  
+
+Why it matters:  
+Duplicates distort the true distribution and bias the model.
+
+------------------------------------------------------------  
+14 FEATURE INTERACTIONS  
+What it tells you:  
+- Do two features together reveal something important  
+
+Why it matters:  
+Interactions often matter more than individual features.
+
+------------------------------------------------------------  
+WHAT THE NUMBERS TELL YOU
+
+The minimum and maximum values show the raw range of each feature.  
+Imagine a dataset of cars:
+
+- mileage ranges from 500 km to 200,000 km  
+- age ranges from 1 year to 12 years  
+
+Mileage spans a huge range compared to age.  
+This means mileage is on a much larger scale.  
+If you feed these raw numbers into gradient descent, the model will pay far more attention to mileage simply because the numbers are bigger.  
+This is why scaling or normalization is needed.
+
+------------------------------------------------------------  
+MEAN VS MEDIAN 
+
+Suppose you have a feature called “paid price” with these values:
+
+[5,000, 5,200, 5,300, 5,400, 50,000]
+
+Mean:  
+(5000 + 5200 + 5300 + 5400 + 50000) / 5 = 13,780  
+
+Median:  
+5,300  
+
+Here the mean is much higher than the median.  
+This tells you the distribution is right‑skewed.  
+One very large value (50,000) pulls the mean upward.  
+A log transform would compress the large value and make the distribution more balanced.
+
+------------------------------------------------------------  
+WHAT IF THE MEDIAN IS HIGHER THAN THE MEAN?
+
+This means the distribution is left‑skewed.
+
+Example:
+
+[100, 120, 130, 140, 5]
+
+Mean:  
+(100 + 120 + 130 + 140 + 5) / 5 = 99  
+
+Median:  
+120  
+
+Here the median (120) is higher than the mean (99).  
+This happens because one very small value (5) pulls the mean downward.  
+A left‑skewed distribution often suggests:
+
+- many values are clustered at the high end  
+- a few very small values drag the average down  
+- you may need to investigate whether the small values are errors or sentinel values  
+- sometimes a square transform or shifting the data helps, depending on the context  
+
+------------------------------------------------------------  
+OUTLIERS 
+
+Using the 1.5 × IQR rule:
+
+Suppose Q1 = 5,000 and Q3 = 5,400.  
+IQR = 400.  
+1.5 × IQR = 600.
+
+Lower bound = Q1 − 600 = 4,400  
+Upper bound = Q3 + 600 = 6,000  
+
+Any value below 4,400 or above 6,000 is an outlier.
+
+So in the earlier example, 50,000 is an outlier.  
+This outlier could be:
+
+- a genuine rare case  
+- a data‑entry mistake  
+- a sentinel value meaning “unknown”  
+
+Each type requires a different cleaning approach.
+
+------------------------------------------------------------  
+NORMALIZATION
+
+When features are raw, their scales can be extremely different.  
+In the car dataset:
+
+- age ranges from 1 to 12  
+- mileage ranges from 500 to 200000  
+
+A model only sees numbers. Because mileage values are so much larger, they dominate distance calculations.  
+For example, in k‑nearest neighbours:
+
+- a difference of 1 year in age  
+- versus a difference of 1000 km in mileage  
+
+The model treats the mileage difference as far more important, even if age is actually a strong predictor.  
+This is why age gets ignored.
+
+Gradient descent also struggles.  
+The loss surface becomes a long, narrow valley.  
+Instead of moving smoothly toward the minimum, the algorithm zig‑zags slowly because one feature has a huge scale compared to the other.
+
+Normalization fixes this by rescaling all features to a common range before training.
+
+------------------------------------------------------------  
+MIN‑MAX SCALING — SIMPLE PRACTICAL EXAMPLE
+
+Formula:  
+x' = (x − min) / (max − min)
+
+Suppose mileage ranges from 500 to 200000.  
+Take a car with mileage = 50000.
+
+x' = (50000 − 500) / (200000 − 500)  
+x' = 49500 / 199500  
+x' ≈ 0.248
+
+Now mileage is a number between 0 and 1.  
+Age will also be scaled to between 0 and 1.  
+This puts both features on equal footing.
+
+Weakness:  
+If one car has mileage = 900000, the max becomes 900000.  
+All other cars get squeezed into a tiny part of the range.  
+The model loses meaningful variation.
+
+------------------------------------------------------------  
+Z‑SCORE STANDARDISATION — SIMPLE PRACTICAL EXAMPLE
+
+Formula:  
+x' = (x − mean) / std_dev
+
+Suppose mileage has:
+
+- mean = 60000  
+- std_dev = 30000  
+
+Take a car with mileage = 50000.
+
+x' = (50000 − 60000) / 30000  
+x' = −10000 / 30000  
+x' = −0.33
+
+This means the car’s mileage is slightly below average.  
+The transformed feature has mean 0 and standard deviation 1.
+
+Why this is better:  
+Outliers do not compress the entire range because the denominator is the spread (std dev), not the full min‑max range.  
+This is why Z‑score is the more common default.
+
+------------------------------------------------------------  
+WHY YOU MUST COMPUTE SCALING ON TRAINING DATA ONLY
+
+You must compute min, max, mean, and std dev only on the training set.  
+Then apply those same saved numbers to validation and test sets.
+
+Practical example:
+
+Training mileage values:  
+[10000, 20000, 30000, 40000]
+
+mean = 25000  
+std_dev = 11180
+
+Test mileage value:  
+50000
+
+You compute:  
+(50000 − 25000) / 11180  
+= 2.24
+
+If you recompute mean and std dev using the test value, you leak information from the test set into training.  
+This makes evaluation unrealistically good and breaks the ML workflow.
+
+------------------------------------------------------------  
+WHY SCALING SPEEDS UP GRADIENT DESCENT
+
+When two features have very different scales, the loss surface becomes a long, narrow valley.  
+Imagine one feature ranges from 1 to 12, and another ranges from 500 to 200000.  
+Gradient descent tries to move downhill, but the valley is stretched out.  
+It must take many small zig‑zag steps across the narrow dimension before it can move forward along the long dimension.  
+This makes training slow and inefficient.
+
+After scaling, both features have similar ranges.  
+The valley becomes more circular instead of elongated.  
+Gradient descent can move directly toward the minimum in far fewer steps.  
+Training becomes faster and more stable.
+
+------------------------------------------------------------  
+EXAMPLE
+
+Suppose you have two features:
+
+Feature A (age): 1 to 12  
+Feature B (mileage): 500 to 200000  
+
+Raw scales:
+
+- Age difference between two cars: 3 years  
+- Mileage difference between two cars: 30000 km  
+
+Gradient descent sees:
+
+3 vs 30000  
+
+The large feature dominates the shape of the loss surface.  
+The model spends most of its time adjusting weights for mileage and barely moves in the direction of age.
+
+After scaling (for example, Z‑score):
+
+Age might become values like −0.5, 0.2, 1.1  
+Mileage might become values like −0.3, 0.4, 1.7  
+
+Now both features have similar magnitudes.  
+The loss surface becomes balanced, and gradient descent moves smoothly toward the minimum.
+
+------------------------------------------------------------  
+WHEN NOT TO SCALE
+
+Tree‑based models (decision trees, random forests, gradient boosting) do not care about the magnitude of features.  
+They only care about ordering:
+
+Is value A less than value B?  
+Is value B greater than value C?
+
+Because they split based on thresholds, not distances, scaling brings no benefit.  
+It does not harm them, but it does not help either.
+
+------------------------------------------------------------  
+WHEN YOU SHOULD SCALE
+
+For almost every other model family, scaling is important:
+
+- linear models  
+- logistic regression  
+- neural networks  
+- support vector machines  
+- k‑nearest neighbours  
+
+These models rely on distances, gradients, or geometric relationships.  
+Uneven feature scales distort these relationships, slow training, and reduce accuracy.  
+Scaling fixes this.
+
+------------------------------------------------------------  
+
+WHY BINNING IS NEEDED
+
+Some numerical features do not follow a straight, smooth relationship with the label.  
+A linear model can only learn straight‑line patterns.  
+If the true pattern is curved, changes direction, or has multiple phases, scaling alone cannot fix it.  
+Binning is used when the feature behaves in a way a straight line cannot capture.
+
+------------------------------------------------------------  
+WHAT BINNING DOES
+
+Binning replaces a continuous numerical value with a categorical bucket.  
+Each bucket represents a range of values.  
+The model learns a separate weight for each bucket.  
+This allows a linear model to approximate curved or irregular patterns by treating each region of the feature’s range independently.
+
+------------------------------------------------------------  
+PRACTICAL EXAMPLE: CAR RESALE VALUE
+
+Consider the relationship between a car’s age and its resale value.  
+This relationship is not a straight line:
+
+- very new cars keep value  
+- mid‑age cars drop sharply  
+- very old cars may stabilize or even increase in value  
+
+A linear model cannot capture a pattern that goes flat → steep drop → flat again.  
+Binning solves this by dividing age into groups such as:
+
+- new  
+- mid‑age  
+- older  
+- classic  
+
+Each group gets its own weight.  
+This turns a curved pattern into a step pattern the model can learn.
+
+------------------------------------------------------------  
+ONE‑HOT ENCODING THE BINS
+
+After binning, each bin is converted into its own binary column.  
+If a car belongs to bin 3, that column is 1 and the others are 0.  
+The model learns an independent coefficient for each bin.  
+This gives the model flexibility to approximate curves without assuming the bins follow a numeric order.
+
+Keeping the bin index as a single integer implies an ordering the model may not respect, so one‑hot encoding is preferred.
+
+------------------------------------------------------------  
+WHEN TO BIN
+
+Binning is most useful when:
+
+1. the relationship between the feature and the label is non‑monotonic  
+2. the feature has many outliers you want to cap  
+3. your model is linear and you want it to approximate a curve  
+
+Tree‑based models already find splits automatically, so explicit binning adds little value for them.
+
+------------------------------------------------------------  
+DATA SCRUBBING
+
+Data scrubbing, also called data cleaning, is the work of fixing the problems that appear between the real world and your training table.  
+Models cannot repair corrupted input on their own.  
+The four most common problems are missing values, duplicate rows, sentinel values, and outliers.  
+Each must be handled deliberately before training.
+
+------------------------------------------------------------  
+THE FOUR PROBLEMS AND THEIR USUAL REMEDIES
+
+Missing values  
+What it looks like: NaN, blank, null  
+Common fix: Fill with the training median for numeric features or the mode for categorical features.  
+If only a few rows are affected, you can drop them.
+
+Duplicates  
+What it looks like: identical rows  
+Common fix: Keep one copy.  
+Dropping all copies removes real information, so only remove the extra duplicates.
+
+Sentinel values  
+What it looks like: special numbers such as −1, 0, or 999 used to mean “unknown”  
+Common fix: Replace with the feature’s median, or add a separate binary column indicating that the value was missing.  
+This prevents the model from treating the sentinel as a real measurement.
+
+Outliers  
+What it looks like: values many standard deviations away from the mean  
+Common fix: Clip at a sensible cap, use a robust loss such as MAE that tolerates outliers, or investigate manually 
+to determine whether the value is real or an error.
+
+------------------------------------------------------------  
+EXPLANATION
+
+Missing values  
+Example: A car’s mileage is blank.  
+If most cars have mileage around 60,000, you fill the blank with the median mileage.  
+This keeps the feature consistent without introducing extreme values.
+
+Duplicates  
+Example: The same car appears twice in the dataset.  
+You keep one copy because it represents a real observation.  
+Removing both copies would erase information.
+
+Sentinel values  
+Example: Age = −1 meaning “unknown”.  
+The model does not know −1 means missing; it treats it as a real age.  
+Replacing −1 with the median age or adding a “was missing” indicator prevents confusion.
+
+Outliers  
+Example: Mileage = 900,000 when most cars are between 10,000 and 200,000.  
+You can clip the value to a maximum such as 250,000, or use a robust loss that reduces the impact of extreme points.  
+If the value looks suspicious, you investigate manually.
+
+------------------------------------------------------------  
+FEATURE QUALITY EXPLANATION
+
+Not every number in a database should be handed to a model.  
+A good numerical feature has specific qualities that make it meaningful, stable, and useful.  
+Getting these qualities right often improves model performance more than changing the model architecture.
+
+The table below shows examples of good and risky features:
+
+Property | Good example | Risky example  
+Clear meaning | mileage: km driven since new | combined_score: proprietary aggregate  
+No sentinel values | null for unknown (handled separately) | −1 for unknown mileage  
+Bounded, plausible range | age: 0 to 30 years | price: can be negative in some exports  
+Enough variation | mileage varies widely across cars | colour_code: 95% of rows are code 1  
+Stable over time | engine size: rarely changes | feature whose distribution drifts  
+
+------------------------------------------------------------  
+CLEAR MEANING
+
+A feature must have a simple, singular meaning.  
+If you cannot explain in one sentence what the number measures, the model will struggle to use it.  
+Aggregated scores, ratios of ratios, or IDs disguised as numeric values often confuse the model.  
+A clear feature is directly tied to a physical or measurable quantity.
+
+Example:  
+mileage = kilometres driven since new  
+This is clear and interpretable.
+
+Risky example:  
+combined_score = proprietary aggregate  
+The model cannot learn reliably from a number whose meaning is unclear or inconsistent.
+
+------------------------------------------------------------  
+REASONABLE, BOUNDED RANGE
+
+A feature should have a physically plausible range.  
+If a value can be negative or extremely large due to data errors, the model will learn incorrect patterns.  
+Define the acceptable range in advance and flag anything outside it.
+
+Example:  
+age = 0 to 30 years  
+This is realistic.
+
+Risky example:  
+price = negative values due to export errors  
+Negative prices are not physically meaningful and indicate data‑quality problems.
+
+------------------------------------------------------------  
+NO SENTINEL VALUES
+
+Sentinel values such as −1, 0, or 999 used to mean “unknown” poison the feature.  
+The model treats them as real measurements and learns patterns based on missingness rather than actual values.
+
+Correct approach:  
+Use null for unknown and handle missingness separately.
+
+Risky example:  
+mileage = −1 meaning “unknown”  
+The model learns that −1 predicts something, but only because those rows are missing data.
+
+------------------------------------------------------------  
+SUFFICIENT VARIATION
+
+A feature must vary enough to carry information.  
+If 95% of rows have the same value, the feature contributes almost nothing.  
+It may still be useful as a rare indicator, but treat it as a binary flag rather than a continuous measurement.
+
+Example:  
+mileage varies widely across cars  
+This provides useful signal.
+
+Risky example:  
+colour_code = 1 for 95% of rows  
+This is effectively a constant and should be treated as a binary indicator.
+
+------------------------------------------------------------  
+STABLE DISTRIBUTION BETWEEN TRAINING AND SERVING
+
+A feature must remain stable over time.  
+If the distribution shifts after deployment because the data source changes or the population changes, the model’s learned weights become mismatched to reality.  
+Monitoring feature distributions in production is essential.
+
+Example:  
+engine size rarely changes in the dataset  
+This is stable.
+
+Risky example:  
+a feature whose distribution drifts significantly over time  
+This causes silent degradation even if loss metrics look normal.
+
+------------------------------------------------------------  
+THE SIMPLEST SCREEN
+
+Look at the feature’s histogram on training data and on a recent production sample side‑by‑side.  
+If the shapes differ noticeably, the feature may be causing silent degradation and should be reviewed.
+
+------------------------------------------------------------  
+FEATURE QUALITY CHECKLIST
+
+Rate a hypothetical feature:  
+“number of days since the car’s last service, where −1 means the service history is unknown.”
+
+Check each criterion:
+
+Has clear, singular meaning  
+No sentinel values used for missing data  
+Bounded, physically plausible range  
+Sufficient variation  
+Likely stable between training and deployment  
+
+------------------------------------------------------------  
+POLYNOMIAL FEATURES 
+
+A linear model predicts:
+
+y' = b + w x
+
+This is always a straight line.  
+If the true relationship between x and y is curved, no choice of w and b will make the line fit well.  
+The model will underfit because a straight line cannot follow a curved pattern.
+
+Polynomial features fix this by adding powers of x:
+
+y' = b + w1 x + w2 x² + w3 x³ + …
+
+The model is still linear in its weights, but because the inputs include x², x³, and higher powers, the output can form curves.  
+This is feature engineering: you create new features (x², x³, …) from an existing one (x) and add them to the design matrix.  
+The model itself remains a simple linear learner.
+
+------------------------------------------------------------  
+PRACTICAL EXAMPLE
+
+Suppose the true pattern between age and price looks like a U‑shape:
+
+- very new items are expensive  
+- mid‑age items are cheaper  
+- very old items become expensive again  
+
+A straight line cannot capture this.  
+But a polynomial model with x and x² can bend into a U‑shape.  
+The model learns weights for x and x² that together produce a curve.
+
+------------------------------------------------------------  
+SCALING MATTERS
+
+Polynomial features grow extremely fast:
+
+- if x is in thousands  
+- x² is in millions  
+- x³ is in billions  
+
+This creates huge differences in magnitude across columns.  
+Gradient descent becomes unstable and slow.
+
+Always scale x before forming polynomial features.  
+Use Z‑score or min‑max scaling so that x, x², and x³ are on similar ranges.
+
+------------------------------------------------------------  
+WATCH OUT FOR HIGH DEGREES
+
+High‑degree polynomials fit the training data extremely well but generalise poorly.  
+They create wiggly curves that follow noise instead of signal.
+
+Degrees 2 and 3 cover most practical curved relationships.  
+If degree 3 still fits poorly, reconsider whether:
+
+- the feature is the right one to transform  
+- a different feature captures the pattern better  
+- the relationship is not polynomial at all  
+
+------------------------------------------------------------  
+

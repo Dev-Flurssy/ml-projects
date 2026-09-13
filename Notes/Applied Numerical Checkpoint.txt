@@ -1,0 +1,586 @@
+APPLIED CHECKPOINT
+
+Question:  
+Imagine a team deciding whether a model is ready for a real user workflow. 
+Use how a model ingests data with feature vectors to make one concrete decision. 
+State the assumption most likely to change your answer.
+
+Answer:  
+A model only sees numerical feature vectors. So one concrete decision is checking whether the feature vectors 
+in production match the exact structure, scaling, and distribution used during training.  
+The assumption most likely to change the answer is that production data follows the same numerical ranges and patterns as the training data.
+
+------------------------------------------------------------  
+PRODUCE
+
+Scenario: Predict whether a transaction is fraudulent (label 0/1) using numerical features.
+
+Features:  
+- amount  
+- time_since_last_tx  
+- num_tx_last_24h  
+
+Model choice: logistic regression on standardized feature vectors.
+
+Feature vector:  
+x = [amount, time_since_last_tx, num_tx_last_24h]
+
+Standardization: applying Standard Scaler
+z_i = (x_i − mean_i) / std_i
+
+Model computation: applying Logistic Regression
+p(fraud | x) = sigmoid(w · z + b)
+
+Reasoning:  
+Raw numerical data becomes a standardized feature vector.  
+The model applies a linear combination and outputs a probability.  
+This makes the internal numerical reasoning visible.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case from Working with Numerical Data:
+
+Training data:  
+- amount mostly between 10 and 500  
+- mean = 100  
+- std = 50  
+
+Production case:  
+- amount = 10,000 (rare high‑value transaction)
+
+Standardized value:  
+z_amount = (10,000 − 100) / 50 = 198
+
+Feature vector becomes:  
+[198, z_time, z_num_tx]
+
+If the weight for amount is even moderately large, the logit w · z + b becomes dominated by 198.  
+This pushes the probability extremely close to 1 or 0, even though the model never saw such extreme values during training.
+
+Failure mode:  
+The model overreacts to out‑of‑distribution numerical values.  
+Extreme standardized values dominate the prediction and create unreliable outputs.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Minimize false positives on legitimate high‑value transactions while still catching real fraud.
+
+Evaluation instead of intuition:
+
+1. Build a test slice of high‑value transactions (amount > 5,000).  
+2. Compute metrics specifically on this slice:  
+   - false positive rate on legitimate high‑value transactions  
+   - recall on fraudulent high‑value transactions
+
+Example results:  
+- Overall accuracy: 92%  
+- High‑value slice false positive rate: 60%  
+
+Decision:  
+Even though the model performs well overall, the high false positive rate on the numerical boundary case shows the model is not ready for deployment.  
+The team should adjust preprocessing (robust scaling or clipping), retrain with more representative high‑value data, 
+or use a different model or calibration strategy.
+
+------------------------------------------------------------  
+NUMERICAL FEATURE INSPECTION APPLIED CHECKPOINT
+
+A team deciding whether a model is ready for a real user workflow must check whether the numerical features 
+in production match the numerical characteristics observed during training.  
+
+A concrete decision is verifying that the numerical ranges, shapes, outliers, and sentinel values 
+in production data are consistent with the training data.  
+The assumption most likely to change the answer is that production data will follow the same distribution as the training data. 
+If production values shift or new ranges appear, the model may fail even if it performed well offline.
+
+------------------------------------------------------------  
+PRODUCE
+
+Model: Appliance Store Price Prediction Model.
+
+To make the reasoning visible, inspect the numerical distribution of appliance prices before training.  
+Example ranges observed during training:
+
+- Microwaves: 40 to 200  
+- Televisions: 300 to 3000  
+- Refrigerators: 500 to 5000  
+- Washing machines: 250 to 1500  
+
+These ranges show that different appliance categories have very different numerical scales.  
+A simple experiment is computing summary statistics such as minimum, maximum, mean, median, standard deviation, and interquartile range.  
+This reveals whether the model needs normalization, binning, or category‑specific handling before training.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case from Working with Numerical Data:
+
+During training, refrigerator prices ranged from 500 to 5000.  
+In production, a new luxury refrigerator appears costing 12000.
+
+If training statistics were:
+
+- mean = 2000  
+- standard deviation = 800  
+
+Then the standardized value becomes:
+
+(12000 − 2000) / 800 = 12.5
+
+This value is far outside the training distribution.  
+If outliers were clipped or removed during training, the model has never seen such values.  
+This creates a failure mode where the model underpredicts or overpredicts high‑value appliances 
+because the numerical range in production no longer matches the training range.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Predict appliance prices accurately across all categories, especially high‑value items, without collapsing when new price ranges appear.
+
+Evaluation tied to the real objective:
+
+1. Build a test slice of appliances priced above 5000.  
+2. Measure:  
+   - Mean Absolute Error on high‑value items  
+   - Root Mean Squared Error  
+   - Calibration error (systematic underprediction or overprediction)  
+   - Coverage (percentage of predictions within an acceptable range)
+
+Example results:
+
+- Overall RMSE: 300  
+- High‑value RMSE: 2500  
+- High‑value MAE: 1800  
+- Calibration: consistent underprediction of luxury items by 40 to 60 percent
+
+Decision:  
+Even though the model performs well overall, it fails on the price ranges that matter most for business.  
+Therefore, the model is not ready for deployment.  
+The team should retrain with more high‑value examples, use robust scaling, adjust outlier handling, or switch to a model that handles wide ranges better.
+
+------------------------------------------------------------  
+NORMALIZATION APPLIED CHECKPOINT
+
+A team deciding whether a model is ready for a real user workflow must verify that all numerical features in
+production are normalized using the same scaling statistics computed from the training data.  
+A concrete decision is confirming that the ranges and distributions of production features match the ranges used 
+during training so that normalization does not distort important information.  
+The assumption most likely to change the answer is that production data will follow the same numerical ranges and patterns as the training data. 
+If production values shift or new extremes appear, normalization may compress or exaggerate features in ways that break the model.
+
+------------------------------------------------------------  
+PRODUCE
+
+Model: House Price Category Classification Model.
+
+To make the reasoning visible, inspect the raw numerical ranges before normalization.  
+Example features:
+
+- district income  
+- number of rooms  
+- square footage  
+- distance to city center  
+- age of the house  
+
+These features have very different scales.  
+Square footage may range from 400 to 5000, while number of rooms ranges from 1 to 12.  
+Without normalization, features with large ranges dominate the model’s behavior and distort gradient descent.
+
+A simple experiment is computing the mean and standard deviation of each feature and applying Z‑score normalization:
+
+x' = (x − mean) / standard deviation
+
+This shows how normalization centers and scales each feature so the model can learn effectively.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case from Working with Numerical Data:
+
+During training, square footage ranged from 400 to 5000.  
+In production, a luxury house appears with 18000 square feet.
+
+If training statistics were:
+
+- mean = 2000  
+- standard deviation = 900  
+
+Then the standardized value becomes:
+
+(18000 − 2000) / 900 = 17.7
+
+This value is far outside the training distribution.  
+If outliers were clipped or removed during training, the model has never seen such values.  
+Normalization produces extreme standardized values that dominate the prediction and cause misclassification.  
+This is a failure mode: normalization amplifies or distorts values when production data does not match the training distribution.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Classify houses accurately across all price categories, especially high‑value properties, without misclassifying them due to distorted normalization.
+
+Evaluation tied to the real objective:
+
+1. Build a test slice of high‑value houses.  
+2. Measure:  
+   - accuracy for the expensive class  
+   - precision for the expensive class  
+   - recall for the expensive class  
+   - calibration error  
+   - distribution drift in normalized features  
+
+Example results:
+
+- Overall accuracy: high  
+- Expensive‑class recall: low  
+- Expensive‑class calibration: unstable  
+- Normalized values for square footage show extreme drift  
+
+Decision:  
+Even though the model performs well overall, it fails on the high‑value slice that matters most for the business.  
+Normalization is not stable under the production distribution, so the model is not ready for deployment.
+
+The team should:
+
+- inspect ranges and outliers before scaling  
+- use robust scaling if outliers are common  
+- retrain with updated data  
+- ensure normalization statistics reflect the true production distribution  
+- verify that normalization does not remove meaningful differences between districts or property types  
+
+------------------------------------------------------------  
+BINNING APPLIED CHECKPOINT
+
+A team deciding whether a model is ready for a real user workflow must determine whether the current bin boundaries 
+for a key feature still match the real distribution seen in production.  
+A concrete decision is checking whether the bins for car age or price still separate meaningful regions of the feature’s range, 
+or whether they must be redesigned before deployment.  
+The assumption most likely to change the answer is that the real‑world car market will continue to follow the same 
+age and price patterns as the training data. If new types of cars appear, such as rare classics, ultra‑luxury models, 
+or unusually cheap vehicles, the original bins may no longer reflect the true structure of the data.
+
+------------------------------------------------------------  
+PRODUCE
+
+Model: Car sale prediction model using a linear model to estimate resale value or classify cars into price bands.
+
+To make the reasoning visible, inspect the relationship between car age and resale price.  
+This relationship is curved rather than linear:
+
+- very new cars retain value  
+- mid‑age cars (around 3–7 years) drop sharply  
+- very old cars may stabilise or increase in value for rare classics  
+
+A straight line cannot capture this pattern.  
+We therefore bin car age into categories such as:
+
+- 0–2 years (new)  
+- 3–7 years (mid‑age)  
+- 8–15 years (older)  
+- 16+ years (classic)  
+
+Each bin is then one‑hot encoded so the linear model can learn a separate weight for each age group.  
+This allows the model to approximate the curved relationship using step‑like regions.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case:
+
+During training, most cars fall into typical age and price ranges.  
+In production, new varieties appear:
+
+- rare, very expensive classic cars  
+- ultra‑luxury new cars with prices far above the training range  
+
+These cars may all fall into the same bin even though their prices differ greatly.  
+For example, both a modest old car and a rare high‑value classic may be placed in the “classic” bin.  
+The model learns one weight for the entire bin, so it cannot distinguish rare expensive cars from ordinary old ones.
+
+Failure mode:
+
+- bins are too coarse  
+- extreme values are hidden inside broad categories  
+- the model systematically mispredicts rare or high‑value cars  
+- performance appears good on common cars but fails on new production patterns  
+
+This is a binning failure: the original bin boundaries no longer match the true structure of the data.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Predict car resale prices or price categories accurately across all types of cars, including rare and high‑value models,
+without collapsing them into overly broad bins.
+
+Evaluation tied to the objective:
+
+1. Build a test slice containing rare classic cars and ultra‑luxury new cars.  
+2. Measure:  
+   - mean absolute error and root mean squared error on this slice  
+   - classification accuracy for high‑price categories  
+   - calibration error (consistent underprediction or overprediction)  
+
+If the model performs well overall but shows large errors on rare or high‑value cars, the current binning scheme is not adequate.  
+The team should:
+
+- redesign bins to better separate ordinary and rare cars  
+- add more bins for high‑value ranges  
+- retrain the model with updated bins  
+- re‑evaluate performance on the critical slice  
+
+The model is ready for real user workflows only when it behaves reliably on both common and rare car types.
+
+------------------------------------------------------------  
+DATA SCRUBBING APPLIED CHECKPOINT
+
+A team deciding whether a model is ready for a real user workflow must determine whether the raw 
+numerical and categorical features in production are clean enough to be safely used by the model.  
+A concrete decision is checking whether missing values, duplicate rows, sentinel values, and outliers 
+in production data are being handled consistently with the scrubbing rules used during training.  
+The assumption most likely to change the answer is that production data will remain as clean and predictable as the training data. 
+In reality, new products, mislabeled entries, unexpected ranges, and missing fields appear frequently,
+these can break the model if scrubbing is not updated.
+
+------------------------------------------------------------  
+PRODUCE
+
+Model: Product Opinion Prediction Model using a linear or tree‑based approach to predict user preferences from product prices, categories, and usage history.
+
+To make the reasoning visible, inspect the raw data before modeling.  
+Typical issues include:
+
+- product_price containing values such as 0, −1, or 9999 meaning “unknown”  
+- product_category appearing in inconsistent formats such as “skin care”, “skincare”, or “skin-care”  
+- user_history missing entries because users forget past products  
+- price ranges varying widely between cheap items and luxury items  
+- outliers that may be real premium products or simple data errors  
+
+Scrubbing steps that make the reasoning visible:
+
+1. Convert sentinel values such as 0, −1, or 9999 into proper missing values.  
+2. Standardize categorical labels to a consistent format.  
+3. Identify which outliers are genuine luxury products and which are errors.  
+4. Impute missing prices using the median or similar‑product averages.  
+5. Remove duplicate rows while keeping one valid copy.  
+
+These steps show how scrubbing transforms the dataset into a stable, usable form for modeling.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case:
+
+During training, most products fall within normal price and category ranges.  
+In production, new varieties appear:
+
+- ultra‑luxury products costing far more than anything in training  
+- mislabeled products with price = 0  
+- imported products with missing or inconsistent categories  
+- duplicate entries with conflicting price formats  
+
+Failure mode:
+
+- If sentinel values such as 0 or −1 are treated as real prices, the model learns incorrect patterns.  
+- If luxury products are treated as outliers and removed, the model cannot predict opinions for high‑value items.  
+- If missing categories are left uncleaned, the model treats them as meaningful labels.  
+- If inconsistent ranges are not scrubbed, normalization and binning become unstable.  
+
+This is a scrubbing failure: the raw data entering the model no longer matches the assumptions made during training, causing unreliable predictions.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Predict product opinions accurately across all product types, including cheap, mid‑range, and luxury items, without being misled by missing values, sentinel values, or mislabeled prices.
+
+Evaluation tied to the real objective:
+
+1. Build a test slice containing luxury products, products with previously missing prices, and products with corrected categories.  
+2. Measure:  
+   - accuracy  
+   - precision  
+   - recall  
+   - calibration (whether the model systematically overpredicts or underpredicts opinions for luxury items)  
+   - stability of predictions after scrubbing  
+
+If the model performs well overall but fails on luxury or previously missing‑value products, scrubbing is not sufficient.  
+The team should refine missing‑value handling, re‑examine which outliers are real versus errors, adjust binning for price tiers, retrain with updated scrubbing rules, and ensure scrubbing is consistent between training and production.
+
+Only when the model behaves reliably on both common and rare product types should it be considered ready for real user workflows.
+
+------------------------------------------------------------  
+FEATURE QUALITY APPLIED CHECKPOINT
+
+A team deciding whether a model is ready for a real user workflow must determine whether the numerical features 
+used in production still satisfy the core qualities of good numerical features: clear meaning, no sentinel values, 
+bounded plausible ranges, sufficient variation, and stable distributions.  
+
+A concrete decision is verifying whether a key feature such as “days since last service” is safe to use, 
+or whether it must be redesigned because its meaning, range, or stability has changed in production.  
+The assumption most likely to change the answer is that the feature’s distribution and meaning will remain stable over time. 
+If production data begins to include new values, new patterns, or new data‑quality issues, the feature may no longer meet the required qualities.
+
+------------------------------------------------------------  
+PRODUCE
+
+Model: Car maintenance risk prediction model using logistic regression to predict whether a car is likely to need service soon.
+
+To make the reasoning visible, inspect the feature “days since last service.”  
+Check each quality:
+
+- Clear meaning: number of days since the car’s last service  
+- No sentinel values: verify that −1 or 0 are not used to mean “unknown”  
+- Bounded range: confirm values fall within a plausible range such as 0 to 2000 days  
+- Sufficient variation: ensure values are not identical for most cars  
+- Stable distribution: compare histograms from training and recent production samples  
+
+Experiment:  
+Plot the histogram of the feature on training data and on a recent production sample side‑by‑side.  
+If the shapes match, the feature is likely stable.  
+If the shapes differ noticeably, the feature may be degrading.
+
+This experiment makes the reasoning visible and shows whether the feature still satisfies the required qualities.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case:
+
+During training, “days since last service” ranged from 0 to 1500 and had no sentinel values.  
+In production, new patterns appear:
+
+- −1 appears frequently to mean “unknown”  
+- some cars report values like 8000 due to data‑entry errors  
+- a new data source reports only 0 or 1 for most cars  
+- seasonal changes cause the distribution to shift dramatically  
+
+Failure mode:
+
+- Sentinel values such as −1 are treated as real measurements  
+- Extremely large values distort normalization and model weights  
+- A feature with almost no variation becomes useless  
+- Distribution drift causes the model’s learned weights to mismatch reality  
+
+This is a feature‑quality failure: the feature no longer satisfies the qualities required for safe use in a model.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Predict car maintenance risk accurately across all car types without being misled by corrupted, unstable, or meaningless numerical features.
+
+Evaluation tied to the real objective:
+
+1. Build a test slice containing cars with:  
+   - previously missing service history  
+   - unusually large service‑day values  
+   - values from new data sources  
+2. Measure:  
+   - accuracy  
+   - precision  
+   - recall  
+   - calibration (whether the model systematically overpredicts or underpredicts risk)  
+   - stability of predictions after removing or repairing the feature  
+
+If the model performs well overall but fails on cars with corrupted or unstable feature values, the feature is not safe for deployment.  
+The team should:
+
+- remove sentinel values  
+- cap implausible ranges  
+- convert low‑variation features into binary indicators  
+- monitor the feature’s distribution continuously  
+- retrain the model with corrected feature definitions  
+
+Only when the feature satisfies all five qualities and behaves reliably in production should the model be considered ready for real user workflows.
+
+------------------------------------------------------------  
+POLYNOMIAL FEATURES APPLIED CHECKPOINT
+
+A team deciding whether a model is ready for a real user workflow must determine whether a curved relationship 
+in production data still matches the polynomial transformation used during training.  
+
+A concrete decision is checking whether the degree‑2 polynomial features applied to a key numerical feature 
+(such as car age or engine temperature) still capture the real curve seen in production, or whether the polynomial degree must be changed before deployment.  
+The assumption most likely to change the answer is that the relationship between the feature and the label will remain stable over time. 
+If production data begins to show a different curve, the polynomial transform may no longer fit well.   
+
+------------------------------------------------------------  
+PRODUCE
+
+Model: Car price prediction model using linear regression with polynomial features.
+
+To make the reasoning visible, inspect the relationship between car age and resale price.  
+The page shows that a straight line underfits curved patterns.     
+Polynomial features allow the model to produce curves while remaining linear in its weights.   
+
+Experiment:
+
+1. Scale the feature “age” using Z‑score normalization.  
+   This is required because polynomial terms explode in magnitude.   
+
+2. Fit three models:  
+   - degree 1 (straight line)  
+   - degree 2 (quadratic)  
+   - degree 3 (cubic)
+
+3. Compare RMSE across the three fits.  
+   The page shows degree 1 underfits, while degree 2 or 3 captures the U‑shape.   
+
+This experiment makes the reasoning visible by showing how polynomial transforms change the model’s ability to follow curved patterns.
+
+------------------------------------------------------------  
+CHALLENGE
+
+Boundary case:
+
+During training, car age followed a gentle U‑shaped relationship with price.  
+In production, new patterns appear:
+
+- a new category of ultra‑old classic cars with extremely high prices  
+- a sudden influx of nearly new cars with artificially discounted prices  
+- a data source reporting age in months instead of years, shifting the scale dramatically
+
+Failure mode:
+
+- The degree‑2 polynomial no longer fits the new curve.  
+- The cubic term becomes unstable because the scale of x has changed.  
+- If x is not scaled before polynomial expansion, x² and x³ become enormous and distort the model.     
+- High‑degree polynomials begin to overfit noise instead of signal.   
+
+This is a polynomial‑transform failure: the transform used during training no longer matches the real curve in production.
+
+------------------------------------------------------------  
+DEFEND
+
+Real objective:  
+Predict car prices accurately across all age ranges, including new, mid‑age, old, and classic cars, without being misled by unstable polynomial terms or changing curves.
+
+Evaluation tied to the real objective:
+
+1. Build a test slice containing:  
+   - ultra‑old classic cars  
+   - newly discounted cars  
+   - cars from the new data source with different scaling
+
+2. Measure:  
+   - RMSE on the slice  
+   - calibration (whether the model systematically underpredicts or overpredicts certain age ranges)  
+   - stability of predictions when polynomial degree is changed from 2 to 3
+
+If the model performs well overall but fails on the slice containing new patterns, the polynomial transform is not adequate.  
+The team should:
+
+- rescale the feature correctly before polynomial expansion  
+- reconsider the polynomial degree  
+- evaluate whether a different feature captures the curve better  
+- retrain with updated transforms  
+- monitor the feature’s distribution continuously
+
+Only when the polynomial transform matches the true production curve should the model be considered ready for real user workflows.
+
+------------------------------------------------------------  
