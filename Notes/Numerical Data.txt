@@ -1,8 +1,7 @@
 HOW A MODEL INGEST DATA WITH FEATURE VECTOR
 
-A machine‑learning model does not understand what a car, apartment, or patient is.  
-It only understands numbers.  
-When a record enters the model, it is immediately turned into a feature vector — a list of numeric values arranged in a fixed order.  
+A machine‑learning model does not understand what a car, apartment, or patient is, it only understands numbers.  
+When a record enters the model, it is immediately turned into a feature vector (a list of numeric values arranged in a fixed order).  
 This means the model never sees the real object, only the numbers that describe it.
 
 ------------------------------------------------------------  
@@ -34,6 +33,14 @@ The model treats each feature vector as a point in space.
 Similar cars appear close together, unusual cars appear far away.
 
 ------------------------------------------------------------  
+FEATURE ENGINEERING
+
+Feature engineering is the process of transforming raw dataset values into numerical, trainable values that a model can ingest as a feature vector.
+Before creating feature vectors, numerical data should be studied in two ways:
+- Visualizing data in plots or graphs.
+- Read and understand statistics of data.
+
+------------------------------------------------------------
 MULTICOLLINEARITY MEANS
 
 Multicollinearity means two or more numerical features in your dataset carry almost the same information.
@@ -271,7 +278,7 @@ Instead of moving smoothly toward the minimum, the algorithm zig‑zags slowly b
 Normalization fixes this by rescaling all features to a common range before training.
 
 ------------------------------------------------------------  
-MIN‑MAX SCALING — SIMPLE PRACTICAL EXAMPLE
+MIN‑MAX SCALING/LINEAR SCALING
 
 Formula:  
 x' = (x − min) / (max − min)
@@ -293,7 +300,49 @@ All other cars get squeezed into a tiny part of the range.
 The model loses meaningful variation.
 
 ------------------------------------------------------------  
-Z‑SCORE STANDARDISATION — SIMPLE PRACTICAL EXAMPLE
+WHEN IT IS APPROPRIATE
+
+Linear scaling works well only when certain conditions are met.  
+It assumes the feature behaves predictably across its range and does not contain extreme irregularities.
+
+Conditions for using linear scaling:
+
+- The lower and upper bounds of the feature remain stable over time.  
+- The feature contains few or no outliers, and any outliers are not extreme.  
+- The feature is roughly uniformly distributed across its range.  
+  A histogram would show bars of similar height across most values.
+
+Human age is a good example of a feature suited for linear scaling:
+
+- The approximate lower and upper bounds are consistently 0 to 100.  
+- Only about 0.3% of the population is over 100, so outliers are rare.  
+- Although some ages appear more frequently than others, a large dataset will still contain sufficient examples of all ages.
+
+------------------------------------------------------------  
+Z‑SCORE STANDARDISATION
+
+A Z‑score tells you how many standard deviations a value is from the mean.  
+For example:
+
+- A value 2 standard deviations above the mean has a Z‑score of +2.0.  
+- A value 1.5 standard deviations below the mean has a Z‑score of −1.5.
+
+Representing a feature with Z‑score scaling means storing each value’s Z‑score in the feature vector.  
+This centres the feature at 0 and scales it by its spread.
+
+In a classic normal distribution:
+
+- At least 68.27% of values lie between −1.0 and +1.0.  
+- At least 95.45% lie between −2.0 and +2.0.  
+- At least 99.73% lie between −3.0 and +3.0.  
+- At least 99.994% lie between −4.0 and +4.0.
+
+Values outside the range −4.0 to +4.0 are rare, but not necessarily true outliers.  
+Outliers have no strict definition, and very large datasets will naturally contain some extreme values.  
+For example, a feature with one billion examples drawn from a normal distribution could still have tens of thousands of values outside the −4.0 to +4.0 range.
+
+------------------------------------------------------------  
+Z‑SCORE STANDARDISATION 
 
 Formula:  
 x' = (x − mean) / std_dev
@@ -315,6 +364,88 @@ The transformed feature has mean 0 and standard deviation 1.
 Why this is better:  
 Outliers do not compress the entire range because the denominator is the spread (std dev), not the full min‑max range.  
 This is why Z‑score is the more common default.
+
+------------------------------------------------------------  
+LOG SCALING
+
+Log scaling transforms a raw value by taking its logarithm.  
+In practice, the natural logarithm (ln) is almost always used.
+
+Formula:  
+x' = ln(x)
+
+Example:  
+Suppose the original value is 54.598.
+
+x' = ln(54.598)  
+x' ≈ 4.0
+
+Log scaling is useful when the feature follows a power‑law distribution.  
+In a power‑law distribution:
+
+- Low values of X correspond to very high values of Y.  
+- As X increases, Y drops sharply.  
+- High values of X correspond to very low values of Y.
+
+Movie ratings are a classic example:
+
+- A few movies receive a very large number of ratings.  
+- Most movies receive very few ratings.  
+- The raw distribution has a heavy head and a long tail.  
+- Taking the log produces a more balanced distribution that is easier for a model to learn from.
+
+Book sales follow the same pattern:
+
+- Most books sell only a few hundred copies.  
+- Some books sell thousands.  
+- Only a few bestsellers sell over a million copies.
+
+Training a linear model on raw sales values forces it to treat a million‑copy bestseller as 10,000 times more influential than a 100‑copy book.  
+This is unrealistic and makes learning difficult.
+
+Log scaling fixes this:
+
+ln(100) ≈ 4.6  
+ln(1,000,000) ≈ 13.8
+
+The bestseller is now only about three times larger than the small‑seller.  
+This is a relationship a linear model can learn.
+
+------------------------------------------------------------  
+CLIPPING
+
+Clipping reduces the influence of extreme outliers by capping values at a chosen threshold.  
+Instead of letting very large or very small values distort the model, clipping replaces them with a fixed limit.
+
+Example:  
+Suppose a dataset contains a feature called roomsPerPerson.  
+Most values follow a normal distribution (mean ≈ 1.8, std_dev ≈ 0.7), but a few houses have extremely large values.
+
+If you clip the feature at 4.0:
+
+- Any value greater than 4.0 becomes exactly 4.0.  
+- The model still sees the data, but the extreme values no longer dominate learning.  
+- The histogram will show a noticeable spike at 4.0, but the feature becomes far more usable.
+
+Clipping does not delete outliers.  
+It simply limits their impact.
+
+You can also clip after applying other normalization methods.  
+For example, after Z‑score scaling:
+
+- Clip Z‑scores greater than +3 to exactly +3.  
+- Clip Z‑scores less than −3 to exactly −3.
+
+This prevents the model from over‑reacting to rare, unimportant extremes.  
+However, some outliers are meaningful, so clipping must be applied carefully.
+
+------------------------------------------------------------  
+| Normalization technique  | Formula                      | When to use |
+| --- | --- | --- |
+| Linear scaling (Min‑Max) | x' = (x − min) / (max − min) | When the feature is mostly uniformly distributed across its range. Flat‑shaped distribution. 
+| Z‑score scaling          | x' = (x − mean) / std_dev    | When the feature is normally distributed with a clear peak near the mean. Bell‑shaped distribution. 
+| Log scaling              | x' = ln(x)                   | When the feature is heavily skewed with a long tail on one or both sides. Heavy‑tail distribution. 
+| Clipping                 | If x > upper, set x = upper. If x < lower, set x = lower. | When the feature contains extreme outliers that distort learning. 
 
 ------------------------------------------------------------  
 WHY YOU MUST COMPUTE SCALING ON TRAINING DATA ONLY
@@ -410,15 +541,6 @@ Uneven feature scales distort these relationships, slow training, and reduce acc
 Scaling fixes this.
 
 ------------------------------------------------------------  
-
-WHY BINNING IS NEEDED
-
-Some numerical features do not follow a straight, smooth relationship with the label.  
-A linear model can only learn straight‑line patterns.  
-If the true pattern is curved, changes direction, or has multiple phases, scaling alone cannot fix it.  
-Binning is used when the feature behaves in a way a straight line cannot capture.
-
-------------------------------------------------------------  
 WHAT BINNING DOES
 
 Binning replaces a continuous numerical value with a categorical bucket.  
@@ -426,8 +548,25 @@ Each bucket represents a range of values.
 The model learns a separate weight for each bucket.  
 This allows a linear model to approximate curved or irregular patterns by treating each region of the feature’s range independently.
 
+Binning turns one numerical column into several binary features.  
+Values inside the same bin are treated identically by the model.
+
 ------------------------------------------------------------  
-PRACTICAL EXAMPLE: CAR RESALE VALUE
+EXAMPLE: FEATURE WITH SUBRANGES
+
+Suppose a feature ranges from 15 to 425.  
+You divide it into five bins:
+
+- Bin 1: 15–34  
+- Bin 2: 35–117  
+- Bin 3: 118–279  
+- Bin 4: 280–392  
+- Bin 5: 393–425  
+
+A value of 17 and a value of 29 both fall in Bin 1, so the model treats them the same.  
+Although X is one column, binning makes the model learn five separate weights.
+
+EXAMPLE: CAR RESALE VALUE
 
 Consider the relationship between a car’s age and its resale value.  
 This relationship is not a straight line:
@@ -450,23 +589,112 @@ This turns a curved pattern into a step pattern the model can learn.
 ------------------------------------------------------------  
 ONE‑HOT ENCODING THE BINS
 
-After binning, each bin is converted into its own binary column.  
-If a car belongs to bin 3, that column is 1 and the others are 0.  
-The model learns an independent coefficient for each bin.  
-This gives the model flexibility to approximate curves without assuming the bins follow a numeric order.
+Each bin becomes its own binary column.  
+For example, a value in Bin 3 becomes:
 
-Keeping the bin index as a single integer implies an ordering the model may not respect, so one‑hot encoding is preferred.
+[0.0, 0.0, 1.0, 0.0, 0.0]
+
+Only the bin containing the value is marked as 1.  
+The model learns an independent coefficient for each bin.  
+This avoids implying any numeric order between bins.
 
 ------------------------------------------------------------  
 WHEN TO BIN
 
 Binning is most useful when:
 
-1. the relationship between the feature and the label is non‑monotonic  
-2. the feature has many outliers you want to cap  
-3. your model is linear and you want it to approximate a curve  
+1. the relationship between the feature and the label is weak or non‑linear  
+2. the feature values form natural clusters  
+3. you want a linear model to approximate curved or irregular patterns  
 
-Tree‑based models already find splits automatically, so explicit binning adds little value for them.
+Tree‑based models already split features automatically, so explicit binning adds less value for them.
+
+------------------------------------------------------------  
+ EXAMPLE: TEMPERATURE VS NUMBER OF SHOPPERS
+
+A scatter plot shows three natural clusters of shoppers based on temperature.  
+Representing temperature as raw values forces a linear model to learn one weight for the entire range, even though the relationship is not linear.
+
+The clusters suggest three bins:
+
+- Bin 1: 4–11  
+- Bin 2: 12–26  
+- Bin 3: 27–36  
+
+Each bin gets its own weight, allowing the model to learn the pattern more accurately.
+
+Creating too many bins is a bad idea because:
+
+- bins with few examples cannot train reliable weights  
+- too many bins create too many features  
+- the model becomes unnecessarily complex
+
+------------------------------------------------------------  
+QUANTILE BUCKETING
+
+Quantile bucketing divides a numerical feature into buckets that each contain approximately the same number of examples.  
+Instead of equal‑width ranges, quantile buckets use equal‑frequency ranges.  
+This hides outliers and ensures every bucket has enough data for the model to learn meaningful weights.
+
+Quantile bucketing is especially useful for skewed distributions, 
+where equal‑width buckets would produce some bins with many examples and others with almost none.
+
+------------------------------------------------------------  
+WHY EQUAL‑WIDTH BUCKETS FAIL ON SKEWED DATA
+
+Suppose car prices range from 0 to 60,000.  
+You divide them into six equal‑width buckets of 10,000 each:
+
+- 0–10,000  
+- 10,001–20,000  
+- 20,001–30,000  
+- 30,001–40,000  
+- 40,001–50,000  
+- 50,001–60,000  
+
+If most cars are priced around 6,000, the first bucket will contain dozens of examples, while the last bucket may contain only a handful.
+
+This creates two problems:
+
+1. Some buckets have too few examples for the model to learn reliable weights.  
+2. The long tail (expensive cars) gets too much “space,” while the dense region (cheap cars) gets compressed into a single bucket.
+
+Equal‑width buckets work only when the distribution is roughly uniform.
+
+------------------------------------------------------------  
+HOW QUANTILE BUCKETING FIXES THIS
+
+Quantile bucketing adjusts the bucket boundaries so each bucket contains the same number of examples, even if the ranges differ dramatically.
+
+Example:
+
+- Bucket 1: 0–4,000  
+- Bucket 2: 4,001–6,000  
+- Bucket 3: 6,001–9,000  
+- Bucket 4: 9,001–15,000  
+- Bucket 5: 15,001–25,000  
+- Bucket 6: 25,001–60,000  
+
+Notice:
+
+- Buckets in dense regions (cheap cars) are narrow.  
+- Buckets in sparse regions (expensive cars) are wide.  
+- Each bucket contains roughly the same number of cars.  
+
+This ensures the model learns equally strong weights for each bucket.
+
+------------------------------------------------------------  
+WHEN TO USE QUANTILE BUCKETING
+
+Quantile bucketing is most useful when:
+
+1. The feature distribution is heavily skewed.  
+2. Equal‑width buckets produce bins with very uneven counts.  
+3. You want to give more resolution to dense regions and less to sparse regions.  
+4. You want to hide outliers without clipping or transforming the data.
+
+Equal‑width buckets give extra space to the long tail.  
+Quantile buckets give extra space to the dense torso.
 
 ------------------------------------------------------------  
 DATA SCRUBBING
@@ -496,8 +724,8 @@ This prevents the model from treating the sentinel as a real measurement.
 
 Outliers  
 What it looks like: values many standard deviations away from the mean  
-Common fix: Clip at a sensible cap, use a robust loss such as MAE that tolerates outliers, or investigate manually 
-to determine whether the value is real or an error.
+Common fix: Clip at a sensible cap, use a robust loss such as MAE that tolerates outliers, 
+or investigate manually to determine whether the value is real or an error.
 
 ------------------------------------------------------------  
 EXPLANATION
@@ -522,7 +750,7 @@ Example: Mileage = 900,000 when most cars are between 10,000 and 200,000.
 You can clip the value to a maximum such as 250,000, or use a robust loss that reduces the impact of extreme points.  
 If the value looks suspicious, you investigate manually.
 
-------------------------------------------------------------  
+-------------------------------------------------  
 FEATURE QUALITY EXPLANATION
 
 Not every number in a database should be handed to a model.  
@@ -652,7 +880,7 @@ This is feature engineering: you create new features (x², x³, …) from an exi
 The model itself remains a simple linear learner.
 
 ------------------------------------------------------------  
-PRACTICAL EXAMPLE
+EXAMPLE
 
 Suppose the true pattern between age and price looks like a U‑shape:
 
