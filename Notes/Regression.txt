@@ -687,6 +687,7 @@ Robust regression methods like Huber or RANSAC can reduce outlier impact.
 CORRELATION VS CAUSATION
 
 Regression identifies relationships between variables but does not prove causation.
+(Causation means one variable directly causes a change in another)
 
 ------------------------------------------------------------
 TRAIN / VALIDATION / TEST SPLIT

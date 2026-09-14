@@ -11,7 +11,7 @@ Take one car from the dataset:
 
 - 4 years old  
 - 56,000 km  
-- 1,600 cc engine  
+- 1, 600 cc engine  
 - Sold for 11,200 GBP  
 
 The model converts this into:
@@ -38,7 +38,7 @@ FEATURE ENGINEERING
 Feature engineering is the process of transforming raw dataset values into numerical, trainable values that a model can ingest as a feature vector.
 Before creating feature vectors, numerical data should be studied in two ways:
 - Visualizing data in plots or graphs.
-- Read and understand statistics of data.
+- Reading and understanding statistics of data.
 
 ------------------------------------------------------------
 MULTICOLLINEARITY MEANS
@@ -829,7 +829,8 @@ This is effectively a constant and should be treated as a binary indicator.
 STABLE DISTRIBUTION BETWEEN TRAINING AND SERVING
 
 A feature must remain stable over time.  
-If the distribution shifts after deployment because the data source changes or the population changes, the model’s learned weights become mismatched to reality.  
+If the distribution shifts after deployment because the data source changes or the population changes, 
+the model’s learned weights become mismatched to reality.  
 Monitoring feature distributions in production is essential.
 
 Example:  
