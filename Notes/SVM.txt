@@ -359,6 +359,10 @@ Think of gamma as a zoom level:
 High gamma → zoomed‑in → model reacts to tiny details
 Low gamma → zoomed‑out → model sees only big trends
 
+Think of C as how “aggressive” the model is.
+High C (e.g., 100)  → tries very hard to fit the training data  → small errors are punished
+Low C (e.g., 1)  → allows more error  → smoother function  → risk of underfitting 
+
 ------------------------------------------------------------
 STEP 8: SORT TEST DATA
 
