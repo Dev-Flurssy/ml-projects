@@ -806,3 +806,39 @@ Plot a colored matrix to reveal patterns
 Improve the model based on what you learn
 
 ------------------------------------------------------------  
+GridSearchCV Automates hyperparameter tuning.
+
+How: It takes a model (or pipeline) and a dictionary of hyperparameters (param_grid), 
+then:
+
+Trains the model for every combination of parameters.
+Uses cross‑validation to evaluate each combination.
+Reports the best parameters and their performance.
+
+What SelectFromModel does
+It fits a model that produces feature importance scores (coefficients or importances).
+It then drops features whose importance is below a threshold (like "mean" or "median").
+The estimator you choose (Lasso, LinearSVR, RandomForest, etc.) determines how importance is measured.
+
+threshold="mean" → keep features whose importance is above the average importance.
+threshold="median" → keep features above the median importance.
+
+Which to use depends on how aggressive you want selection to be:
+"mean" usually keeps fewer features (stricter). "median" keeps about half the features
+
+You’re not training with Lasso or LinearSVR — you’re just using them as a filter to decide which features to keep.
+After selection, the actual model you care about (your RBF SVR) is trained only on the selected features.
+So the choice of estimator inside SelectFromModel affects which features survive, but not the final SVR’s hyperparameters.
+
+It’s similar to GridSearchCV, but instead of exhaustively testing all combinations of hyperparameters, 
+it samples random combinations from given ranges or distributions.
+
+This makes it much faster when the search space is large.
+You control how many random combinations to try with the n_iter parameter.
+
+Think of it like this:
+GridSearchCV = brute force, tries everything.
+RandomizedSearchCV = smart sampling, tries a fixed number of random setups.
+
+If you have many hyperparameters (like SVR’s C, gamma, epsilon, plus feature selector params), GridSearch can explode in size.
+RandomizedSearch lets you explore efficiently without waiting hours.
