@@ -1014,4 +1014,33 @@ Feature Cross:
 
 The crossed feature captures information that the separate features cannot express on their own.
 
-------------------------------------------------------------
+-------------------------------------------------------------
+Clean dataset
+      ↓
+Train/test split
+      ↓
+EDA on Data
+      ↓
+Preprocessing pipeline
+      ↓
+Baseline
+      ↓
+SVR
+      ↓
+5-fold CV
+      ↓
+GridSearchCV / RandomizedSearchCV
+      ↓
+Select final model
+      ↓
+Test set ONCE
+      ↓
+MAE + RMSE + R²
+      ↓
+Actual vs Predicted
+      ↓
+Residual plot
+      ↓
+Residual histogram
+      ↓
+Interpretation
